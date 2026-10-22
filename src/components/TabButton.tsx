@@ -1,3 +1,4 @@
+import React from 'react';
 interface TabButtonProps {
   label: string;
   isActive: boolean;
@@ -8,7 +9,16 @@ function TabButton({ label, isActive, onClick }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1.5 text-xs font-bold rounded-lg ${isActive ? 'bg-indigo-600' : 'bg-slate-800'}`}
+      style={{
+        padding: '6px 12px',
+        fontSize: '12px',
+        fontWeight: 700,
+        border: 'none',
+        borderRadius: '8px',
+        color: 'white',
+        cursor: 'pointer',
+        background: isActive ? '#4f46e5' : '#1e293b',
+      }}
     >
       {label}
     </button>

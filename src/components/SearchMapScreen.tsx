@@ -1,43 +1,145 @@
-import type { Parking } from '../types';
+import React from 'react';
 import ParkingCard from './ParkingCard';
 
-interface SearchMapScreenProps {
-  parkings: Parking[];
-  onSelectParking: (parking: Parking) => void;
+interface Parking {
+  id: number;
+  title: string;
+  distance: string;
+  walkTime: string;
+  rating: number;
+  pricePerMin: string;
 }
 
-function SearchMapScreen({ parkings, onSelectParking }: SearchMapScreenProps) {
+const parkings: Parking[] = [
+  { id: 1, title: 'חניון הרצל 14', distance: "200 מ'", walkTime: "3 דק' הליכה", rating: 4.8, pricePerMin: '0.40' },
+  { id: 2, title: 'חניה פרטית ברוטשילד', distance: "350 מ'", walkTime: "5 דק' הליכה", rating: 4.5, pricePerMin: '0.35' },
+  { id: 3, title: 'חניון שוק הכרמל', distance: "500 מ'", walkTime: "7 דק' הליכה", rating: 4.2, pricePerMin: '0.28' },
+  { id: 4, title: 'חניה מקורה בדיזנגוף', distance: "650 מ'", walkTime: "9 דק' הליכה", rating: 4.6, pricePerMin: '0.45' },
+];
+
+function SearchMapScreen() {
   return (
-    <div className="space-y-6">
-      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex justify-between items-center">
-        <div className="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs font-bold text-slate-800 w-80">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div
+        style={{
+          background: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
+          padding: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            background: 'white',
+            border: '1px solid #cbd5e1',
+            borderRadius: '12px',
+            padding: '8px 16px',
+            fontSize: '12px',
+            fontWeight: 700,
+            color: '#1e293b',
+            width: '320px',
+          }}
+        >
           רח' הרצל 14, תל אביב-יפו
         </div>
-        <div className="flex gap-2">
-          <span className="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">הכל ({parkings.length})</span>
-          <span className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl text-xs">מקורה בלבד ☂️</span>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <span
+            style={{
+              padding: '8px 12px',
+              background: '#4f46e5',
+              color: 'white',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: 700,
+            }}
+          >
+            הכל ({parkings.length})
+          </span>
+          <span
+            style={{
+              padding: '8px 12px',
+              background: 'white',
+              border: '1px solid #cbd5e1',
+              color: '#334155',
+              borderRadius: '12px',
+              fontSize: '12px',
+            }}
+          >
+            מקורה בלבד ☂️
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 relative h-[420px] bg-slate-200 rounded-2xl border border-slate-300 p-4 flex flex-col justify-between">
-          <div className="text-xs font-bold text-slate-600 bg-white/80 p-2 rounded-xl inline-block w-fit">
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+        <div
+          style={{
+            height: '420px',
+            background: '#e2e8f0',
+            border: '1px solid #cbd5e1',
+            borderRadius: '16px',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#475569',
+              background: 'rgba(255, 255, 255, 0.8)',
+              padding: '8px',
+              borderRadius: '12px',
+              width: 'fit-content',
+            }}
+          >
             📍 מפת חניות אינטראקטיבית (תצוגה סטטית)
           </div>
-          <div className="flex justify-center items-center h-full">
-            <button
-              onClick={() => onSelectParking(parkings[0])}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-full font-bold text-xs shadow-lg"
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div
+              style={{
+                background: '#4f46e5',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '999px',
+                fontSize: '12px',
+                fontWeight: 700,
+                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+              }}
             >
-              ₪{parkings[0].pricePerMin.toFixed(2)} / דקה • לחץ לבחירת {parkings[0].title}
-            </button>
+              ₪0.40 / דקה • חניון הרצל 14
+            </div>
           </div>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
-          <h4 className="text-xs font-bold text-slate-800 uppercase">חניות קרובות ביותר</h4>
+        <div
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b' }}>
+            חניות קרובות ביותר
+          </h4>
           {parkings.map((parking) => (
-            <ParkingCard key={parking.id} parking={parking} onSelect={onSelectParking} />
+            <ParkingCard
+              key={parking.id}
+              id={parking.id}
+              title={parking.title}
+              distance={parking.distance}
+              walkTime={parking.walkTime}
+              rating={parking.rating}
+              pricePerMin={parking.pricePerMin}
+            />
           ))}
         </div>
       </div>

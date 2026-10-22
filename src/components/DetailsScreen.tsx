@@ -1,55 +1,109 @@
-import type { Parking } from '../types';
+import React from 'react';
+import Button from './Button';
 
-interface DetailsScreenProps {
-  parking: Parking;
-  onConfirm: () => void;
-  onBack: () => void;
-}
-
-function DetailsScreen({ parking, onConfirm, onBack }: DetailsScreenProps) {
-  const estimatedPrice = parking.pricePerMin * 120;
-  const total = estimatedPrice - 5;
-
+function DetailsScreen() {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200">
-        <button onClick={onBack} className="bg-white border border-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold">
-          ← חזרה למפה
-        </button>
-        <h3 className="font-bold text-base text-slate-900">{parking.title}</h3>
+    <div
+      style={{
+        maxWidth: '896px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
+      <div
+        style={{
+          background: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
+          padding: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Button label="← חזרה למפה" background="#e2e8f0" color="#0f172a" />
+        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
+          רח' הרצל 14, תל אביב-יפו
+        </h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-          <span className="text-xs text-slate-400 block">מחיר לדקה</span>
-          <span className="text-2xl font-black text-indigo-600">₪{parking.pricePerMin.toFixed(2)}</span>
-          <p className="text-xs text-slate-600 mt-4">
-            {parking.isCovered ? 'חניה מקורה עם שער חשמלי אוטומטי.' : 'חניה לא מקורה.'}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '16px',
+          }}
+        >
+          <span style={{ display: 'block', fontSize: '12px', color: '#94a3b8' }}>מחיר לדקה</span>
+          <span style={{ fontSize: '24px', fontWeight: 900, color: '#4f46e5' }}>₪0.40</span>
+          <p style={{ fontSize: '12px', color: '#475569', marginTop: '16px' }}>
+            חניה מקורה תת-קרקעית עם שער חשמלי אוטומטי.
           </p>
         </div>
 
-        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col justify-between">
-          <div className="bg-indigo-50 p-4 rounded-2xl space-y-2 text-xs">
-            <div className="flex justify-between">
+        <div
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '16px',
+          }}
+        >
+          <div
+            style={{
+              background: '#eef2ff',
+              padding: '16px',
+              borderRadius: '16px',
+              fontSize: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>הערכת זמן (120 דקות)</span>
-              <span className="font-bold">₪{estimatedPrice.toFixed(2)}</span>
+              <span style={{ fontWeight: 700 }}>₪48.00</span>
             </div>
-            <div className="flex justify-between text-emerald-600 font-bold">
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                color: '#059669',
+                fontWeight: 700,
+              }}
+            >
               <span>הנחת מנוי</span>
               <span>-₪5.00</span>
             </div>
-            <div className="border-t border-indigo-200 pt-2 flex justify-between font-black text-sm">
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                borderTop: '1px solid #c7d2fe',
+                paddingTop: '8px',
+                fontSize: '14px',
+                fontWeight: 900,
+              }}
+            >
               <span>סך הכל:</span>
-              <span className="text-indigo-600">₪{total.toFixed(2)}</span>
+              <span style={{ color: '#4f46e5' }}>₪43.00</span>
             </div>
           </div>
 
-          <button
-            onClick={onConfirm}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-sm transition mt-4"
-          >
-            אשר הזמנה ותשלום מאובטח 💳
-          </button>
+          <Button
+            label="אשר הזמנה ותשלום מאובטח 💳"
+            background="#4f46e5"
+            color="white"
+            fullWidth={true}
+          />
         </div>
       </div>
     </div>

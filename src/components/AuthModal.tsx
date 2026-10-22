@@ -1,3 +1,7 @@
+import React from 'react';
+
+import Button from './Button';
+
 interface AuthModalProps {
   onClose: () => void;
   onLoginSuccess: (email: string) => void;
@@ -7,24 +11,54 @@ const accounts: string[] = ['driver@parking.co.il', 'owner@parking.co.il'];
 
 function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl p-6 w-full max-w-md space-y-4">
-        <h2 className="text-xl font-bold text-center">בחירת חשבון</h2>
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        zIndex: 50,
+        background: 'rgba(2, 6, 23, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+      }}
+    >
+      <div
+        style={{
+          background: 'white',
+          borderRadius: '24px',
+          padding: '24px',
+          width: '100%',
+          maxWidth: '448px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
+        <h2 style={{ fontSize: '20px', fontWeight: 700, textAlign: 'center' }}>בחירת חשבון</h2>
         {accounts.map((email) => (
-          <button
+          <Button
             key={email}
+            label={email}
             onClick={() => {
               onLoginSuccess(email);
               onClose();
             }}
-            className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl text-xs"
-          >
-            {email}
-          </button>
+            background="#4f46e5"
+            color="white"
+            fullWidth={true}
+          />
         ))}
-        <button onClick={onClose} className="w-full bg-slate-100 py-3 rounded-xl text-xs">
-          ביטול
-        </button>
+        <Button
+          label="ביטול"
+          onClick={onClose}
+          background="#f1f5f9"
+          color="#0f172a"
+          fullWidth={true}
+        />
       </div>
     </div>
   );

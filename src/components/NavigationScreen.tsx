@@ -1,34 +1,87 @@
 import React from 'react';
 
-interface NavigationScreenProps {
-  onHome: () => void;
-}
-
-function NavigationScreen({ onHome }: NavigationScreenProps) {
+function NavigationScreen() {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center">
-        <h3 className="text-xl font-black text-slate-900">החניה שוריינה עבורך בהצלחה! 🎉</h3>
-        <p className="text-xs text-slate-600 mt-1">קוד הכניסה נוצר ופעיל כעת.</p>
+    <div
+      style={{
+        maxWidth: '896px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
+      <div
+        style={{
+          background: '#ecfdf5',
+          border: '1px solid #a7f3d0',
+          padding: '24px',
+          borderRadius: '16px',
+          textAlign: 'center',
+        }}
+      >
+        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>
+          החניה שוריינה עבורך בהצלחה! 🎉
+        </h3>
+        <p style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
+          קוד הכניסה נוצר ופעיל כעת.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl text-center">
-          <span className="text-xs text-slate-400 font-bold block">זמן שנותר להגעה</span>
-          <div className="text-4xl font-black text-indigo-600 font-mono my-3">06:42</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '20px',
+            textAlign: 'center',
+          }}
+        >
+          <span style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#94a3b8' }}>
+            זמן שנותר להגעה
+          </span>
+          <div
+            style={{
+              fontSize: '36px',
+              fontWeight: 900,
+              fontFamily: 'monospace',
+              color: '#4f46e5',
+              margin: '12px 0',
+            }}
+          >
+            06:42
+          </div>
         </div>
 
-        <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl text-center">
-          <span className="text-xs text-slate-400 font-bold block">קוד כניסה לשער</span>
-          <div className="text-3xl font-black font-mono my-2 bg-white px-4 py-2 rounded-xl border border-slate-300">
+        <div
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '20px',
+            textAlign: 'center',
+          }}
+        >
+          <span style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#94a3b8' }}>
+            קוד כניסה לשער
+          </span>
+          <div
+            style={{
+              fontSize: '30px',
+              fontWeight: 900,
+              fontFamily: 'monospace',
+              background: 'white',
+              border: '1px solid #cbd5e1',
+              padding: '8px 16px',
+              borderRadius: '12px',
+              margin: '8px 0',
+            }}
+          >
             7 2 8 4
           </div>
         </div>
       </div>
-
-      <button onClick={onHome} className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm">
-        חזרה למסך הבית
-      </button>
     </div>
   );
 }

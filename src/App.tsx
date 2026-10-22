@@ -1,43 +1,46 @@
+import React from 'react';
 import { useState } from 'react';
-import type { Parking } from './types';
 import HomeScreen from './components/HomeScreen';
 import SearchMapScreen from './components/SearchMapScreen';
 import DetailsScreen from './components/DetailsScreen';
 import NavigationScreen from './components/NavigationScreen';
 import AddParkingScreen from './components/AddParkingScreen';
 import DashboardScreen from './components/DashboardScreen';
-import AuthModal from './components/AuthModal';
 import TabButton from './components/TabButton';
-import { parkings, rentals, tabs } from './data';
-import {
-  SCREEN_HOME,
-  SCREEN_SEARCH,
-  SCREEN_DETAILS,
-  SCREEN_NAVIGATION,
-  SCREEN_ADD,
-  SCREEN_DASHBOARD,
-} from './constants';
+
+interface Tab {
+  id: string;
+  label: string;
+}
+
+const tabs: Tab[] = [
+  { id: 'home', label: '1. בית' },
+  { id: 'search', label: '2. מפה' },
+  { id: 'details', label: '3. תשלום' },
+  { id: 'navigation', label: '4. ניווט' },
+  { id: 'add', label: '5. הוספה' },
+  { id: 'dashboard', label: '6. ניהול' },
+];
 
 function App() {
-  // המסך הנוכחי
-  const [currentTab, setCurrentTab] = useState<number>(SCREEN_HOME);
-  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
-  const [userEmail, setUserEmail] = useState<string>('driver@parking.co.il');
-  // החניה שנבחרה במפה, מתחילים בראשונה כדי שתמיד יהיה ערך
-  const [selectedParking, setSelectedParking] = useState<Parking>(parkings[0]);
-
-  function handleSelectParking(parking: Parking) {
-    setSelectedParking(parking);
-    setCurrentTab(SCREEN_DETAILS);
-  }
+  const [currentTab, setCurrentTab] = useState<string>('home');
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-['Heebo']">
-      {/* סרגל ניווט עליון להחלפת מסכים */}
-      <header className="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
-        <h1 className="font-bold text-lg">חניה בקליק • פארקי</h1>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <header
+        style={{
+          background: '#0f172a',
+          color: 'white',
+          padding: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
+        }}
+      >
+        <h1 style={{ fontWeight: 700, fontSize: '18px' }}>חניה בקליק • פארקי</h1>
 
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: '8px' }}>
           {tabs.map((tab) => (
             <TabButton
               key={tab.id}
@@ -49,40 +52,25 @@ function App() {
         </div>
       </header>
 
-      {/* תצוגה מותנית של המסך לפי ה-State */}
-      <main className="p-6 flex-1 max-w-[1400px] w-full mx-auto bg-white my-4 rounded-2xl shadow-sm">
-        {currentTab === SCREEN_HOME && (
-          <HomeScreen
-            onNavigate={setCurrentTab}
-            userEmail={userEmail}
-            onOpenAuth={() => setIsAuthOpen(true)}
-          />
-        )}
-        {currentTab === SCREEN_SEARCH && (
-          <SearchMapScreen parkings={parkings} onSelectParking={handleSelectParking} />
-        )}
-        {currentTab === SCREEN_DETAILS && (
-          <DetailsScreen
-            parking={selectedParking}
-            onConfirm={() => setCurrentTab(SCREEN_NAVIGATION)}
-            onBack={() => setCurrentTab(SCREEN_SEARCH)}
-          />
-        )}
-        {currentTab === SCREEN_NAVIGATION && (
-          <NavigationScreen onHome={() => setCurrentTab(SCREEN_HOME)} />
-        )}
-        {currentTab === SCREEN_ADD && (
-          <AddParkingScreen onPublished={() => setCurrentTab(SCREEN_DASHBOARD)} />
-        )}
-        {currentTab === SCREEN_DASHBOARD && <DashboardScreen rentals={rentals} />}
+      <main
+        style={{
+          padding: '24px',
+          flex: 1,
+          maxWidth: '1400px',
+          width: '100%',
+          margin: '16px auto',
+          background: 'white',
+          borderRadius: '16px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        {currentTab === 'home' && <HomeScreen />}
+        {currentTab === 'search' && <SearchMapScreen />}
+        {currentTab === 'details' && <DetailsScreen />}
+        {currentTab === 'navigation' && <NavigationScreen />}
+        {currentTab === 'add' && <AddParkingScreen />}
+        {currentTab === 'dashboard' && <DashboardScreen />}
       </main>
-
-      {isAuthOpen && (
-        <AuthModal
-          onClose={() => setIsAuthOpen(false)}
-          onLoginSuccess={setUserEmail}
-        />
-      )}
     </div>
   );
 }

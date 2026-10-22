@@ -1,25 +1,58 @@
 import React from 'react';
-import type { Rental } from '../types';
 
 interface RentalRowProps {
-  rental: Rental;
+  plateNumber: string;
+  timeAgo: string;
+  durationMin: number;
+  type: string;
+  totalEarnings: string;
 }
 
-function RentalRow({ rental }: RentalRowProps) {
+function RentalRow({ plateNumber, timeAgo, durationMin, type, totalEarnings }: RentalRowProps) {
   return (
-    <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-xs">
+    <div
+      style={{
+        background: 'white',
+        padding: '14px',
+        borderRadius: '12px',
+        border: '1px solid #e2e8f0',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div
+          style={{
+            width: '36px',
+            height: '36px',
+            background: '#ecfdf5',
+            color: '#059669',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            fontWeight: 700,
+          }}
+        >
           🚗
         </div>
         <div>
-          <h5 className="text-xs font-bold text-slate-900">לוחית רישוי: {rental.plateNumber}</h5>
-          <p className="text-[10px] text-slate-500">{rental.timeAgo} • {rental.durationMin} דקות {rental.type}</p>
+          <h5 style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>
+            לוחית רישוי: {plateNumber}
+          </h5>
+          <p style={{ fontSize: '10px', color: '#64748b' }}>
+            {timeAgo} • {durationMin} דקות {type}
+          </p>
         </div>
       </div>
-      <div className="text-left">
-        <span className="block text-xs font-black text-emerald-600">+₪{rental.totalEarnings.toFixed(2)}</span>
-        <span className="block text-[9px] text-slate-400">הושלם בהצלחה</span>
+      <div style={{ textAlign: 'left' }}>
+        <span style={{ display: 'block', fontSize: '12px', fontWeight: 900, color: '#059669' }}>
+          +₪{totalEarnings}
+        </span>
+        <span style={{ display: 'block', fontSize: '9px', color: '#94a3b8' }}>הושלם בהצלחה</span>
       </div>
     </div>
   );

@@ -1,30 +1,57 @@
-import type { Parking } from '../types';
+import React from 'react';
 
 interface ParkingCardProps {
-  parking: Parking;
-  onSelect: (parking: Parking) => void;
+  id: number;
+  title: string;
+  distance: string;
+  walkTime: string;
+  rating: number;
+  pricePerMin: string;
 }
 
-function ParkingCard({ parking, onSelect }: ParkingCardProps) {
+function ParkingCard({ id, title, distance, walkTime, rating, pricePerMin }: ParkingCardProps) {
   return (
     <div
-      onClick={() => onSelect(parking)}
-      className="bg-white hover:border-indigo-500 border border-slate-200 rounded-xl p-3 shadow-sm cursor-pointer transition flex items-center justify-between"
+      style={{
+        background: 'white',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        padding: '12px',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
     >
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-black text-sm">
-          {parking.id}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            background: '#eef2ff',
+            color: '#4f46e5',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '14px',
+            fontWeight: 900,
+          }}
+        >
+          {id}
         </div>
         <div>
-          <h5 className="text-xs font-bold text-slate-900">{parking.title}</h5>
-          <p className="text-[10px] text-slate-500">
-            {parking.distance} • {parking.walkTime} • ⭐ {parking.rating}
+          <h5 style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>{title}</h5>
+          <p style={{ fontSize: '10px', color: '#64748b' }}>
+            {distance} • {walkTime} • ⭐ {rating}
           </p>
         </div>
       </div>
-      <div className="text-left">
-        <span className="block text-xs font-black text-indigo-600">₪{parking.pricePerMin.toFixed(2)}</span>
-        <span className="block text-[9px] text-slate-400">לדקה</span>
+      <div style={{ textAlign: 'left' }}>
+        <span style={{ display: 'block', fontSize: '12px', fontWeight: 900, color: '#4f46e5' }}>
+          ₪{pricePerMin}
+        </span>
+        <span style={{ display: 'block', fontSize: '9px', color: '#94a3b8' }}>לדקה</span>
       </div>
     </div>
   );
