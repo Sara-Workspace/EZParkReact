@@ -1,4 +1,5 @@
 import React from 'react';
+import InfoCard from './InfoCard';
 
 function NavigationScreen() {
   return (
@@ -29,18 +30,7 @@ function NavigationScreen() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-        <div
-          style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '16px',
-            padding: '20px',
-            textAlign: 'center',
-          }}
-        >
-          <span style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#94a3b8' }}>
-            זמן שנותר להגעה
-          </span>
+        <InfoCard title="זמן שנותר להגעה">
           <div
             style={{
               fontSize: '36px',
@@ -52,20 +42,9 @@ function NavigationScreen() {
           >
             06:42
           </div>
-        </div>
+        </InfoCard>
 
-        <div
-          style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '16px',
-            padding: '20px',
-            textAlign: 'center',
-          }}
-        >
-          <span style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#94a3b8' }}>
-            קוד כניסה לשער
-          </span>
+        <InfoCard title="קוד כניסה לשער">
           <div
             style={{
               fontSize: '30px',
@@ -80,7 +59,7 @@ function NavigationScreen() {
           >
             7 2 8 4
           </div>
-        </div>
+        </InfoCard>
       </div>
     </div>
   );

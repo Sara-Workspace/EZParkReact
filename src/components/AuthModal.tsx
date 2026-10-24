@@ -1,13 +1,20 @@
 import React from 'react';
-
 import Button from './Button';
+
+interface Account {
+  id: number;
+  email: string;
+}
 
 interface AuthModalProps {
   onClose: () => void;
   onLoginSuccess: (email: string) => void;
 }
 
-const accounts: string[] = ['driver@parking.co.il', 'owner@parking.co.il'];
+const accounts: Account[] = [
+  { id: 1, email: 'driver@parking.co.il' },
+  { id: 2, email: 'owner@parking.co.il' },
+];
 
 function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
   return (
@@ -39,12 +46,12 @@ function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
         }}
       >
         <h2 style={{ fontSize: '20px', fontWeight: 700, textAlign: 'center' }}>בחירת חשבון</h2>
-        {accounts.map((email) => (
+        {accounts.map((account) => (
           <Button
-            key={email}
-            label={email}
+            key={account.id}
+            label={account.email}
             onClick={() => {
-              onLoginSuccess(email);
+              onLoginSuccess(account.email);
               onClose();
             }}
             background="#4f46e5"

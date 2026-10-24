@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from './Button';
+import FormField from './FormField';
 
 function AddParkingScreen() {
   return (
@@ -27,54 +28,8 @@ function AddParkingScreen() {
           gap: '16px',
         }}
       >
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#334155',
-              marginBottom: '4px',
-            }}
-          >
-            כתובת החניה
-          </label>
-          <div
-            style={{
-              background: 'white',
-              border: '1px solid #cbd5e1',
-              borderRadius: '12px',
-              padding: '8px 14px',
-              fontSize: '12px',
-            }}
-          >
-            רח' דיזנגוף 120, תל אביב-יפו
-          </div>
-        </div>
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#334155',
-              marginBottom: '4px',
-            }}
-          >
-            מחיר מבוקש לדקה
-          </label>
-          <div
-            style={{
-              background: 'white',
-              border: '1px solid #cbd5e1',
-              borderRadius: '12px',
-              padding: '8px 14px',
-              fontSize: '12px',
-            }}
-          >
-            0.42 ₪
-          </div>
-        </div>
+        <FormField label="כתובת החניה" value="רח' דיזנגוף 120, תל אביב-יפו" />
+        <FormField label="מחיר מבוקש לדקה" value="0.42 ₪" />
 
         <Button
           label="פרסם חניה להשכרה כעת 🚗"
