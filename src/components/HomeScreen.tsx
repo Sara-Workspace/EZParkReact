@@ -1,11 +1,12 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 import AuthModal from './AuthModal';
 
 function HomeScreen() {
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string>('driver@parking.co.il');
+  const navigate = useNavigate();
 
   return (
     <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '16px 0' }}>
@@ -43,6 +44,7 @@ function HomeScreen() {
           marginBottom: '40px',
         }}
       >
+        {/* כרטיס 1: חיפוש חניה */}
         <div
           style={{
             background: '#0f172a',
@@ -65,12 +67,14 @@ function HomeScreen() {
           </div>
           <Button
             label="התחל בחיפוש חניה במפה ←"
+            onClick={() => navigate('/search')}
             background="#4f46e5"
             color="white"
             fullWidth={true}
           />
         </div>
 
+        {/* כרטיס 2: הוספת חניה */}
         <div
           style={{
             background: '#0f172a',
@@ -94,6 +98,7 @@ function HomeScreen() {
           </div>
           <Button
             label="הוסף חניה חדשה להשכרה ←"
+            onClick={() => navigate('/add-parking')}
             background="#059669"
             color="white"
             fullWidth={true}
@@ -101,6 +106,7 @@ function HomeScreen() {
         </div>
       </div>
 
+      {/* אזור התחברות */}
       <div
         style={{
           background: '#f8fafc',
@@ -120,21 +126,18 @@ function HomeScreen() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
+          <Button label="החלף חשבון / התחבר מחדש" onClick={() => setIsAuthOpen(true)} background="#0f172a" color="white" />
           <Button
-            label="החלף חשבון / התחבר מחדש"
-            onClick={() => setIsAuthOpen(true)}
-            background="#0f172a"
-            color="white"
+            label="לוח בקרה והכנסות"
+            onClick={() => navigate('/dashboard')}
+            background="#eef2ff"
+            color="#4338ca"
           />
-          <Button label="לוח בקרה והכנסות" background="#eef2ff" color="#4338ca" />
         </div>
       </div>
 
       {isAuthOpen && (
-        <AuthModal
-          onClose={() => setIsAuthOpen(false)}
-          onLoginSuccess={setUserEmail}
-        />
+        <AuthModal onClose={() => setIsAuthOpen(false)} onLoginSuccess={setUserEmail} />
       )}
     </div>
   );
