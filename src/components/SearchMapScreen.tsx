@@ -1,23 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ParkingCard from './ParkingCard';
 
-interface Parking {
-  id: number;
-  title: string;
-  distance: string;
-  walkTime: string;
-  rating: number;
-  pricePerMin: string;
+// 1. הגדרת הממשק (Interface) לפי ה-DTO החוזר מה-Backend
+interface ParkingSpot {
+  spotId: number;
+  ownerId: number;
+  address: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  evCharger: boolean;
+  basePricePerHour: number;
+  isActive: boolean;
+  image?: string;
 }
 
-const parkings: Parking[] = [
-  { id: 1, title: 'חניון הרצל 14', distance: "200 מ'", walkTime: "3 דק' הליכה", rating: 4.8, pricePerMin: '0.40' },
-  { id: 2, title: 'חניה פרטית ברוטשילד', distance: "350 מ'", walkTime: "5 דק' הליכה", rating: 4.5, pricePerMin: '0.35' },
-  { id: 3, title: 'חניון שוק הכרמל', distance: "500 מ'", walkTime: "7 דק' הליכה", rating: 4.2, pricePerMin: '0.28' },
-  { id: 4, title: 'חניה מקורה בדיזנגוף', distance: "650 מ'", walkTime: "9 דק' הליכה", rating: 4.6, pricePerMin: '0.45' },
-];
+const API_URL = 'https://localhost:7036/api/ParkingSpots';
 
 function SearchMapScreen() {
+  // 2. שלושת המצבים המנוהלים לפי חומר הלימוד
+  const [spots, setSpots] = useState<ParkingSpot[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 3. שליפת הנתונים בטעינת הקומפוננטה
+  useEffect(() => {
+    const fetchSpots = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(API_URL, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+
+        // בדיקה שהסטטוס תקין (2xx) - כפי שנלמד, fetch לא זורק שגיאה על 404 או 500
+        if (!response.ok) {
+          throw new Error('שגיאת שרת בטעינת החניות');
+        }
+
+        const data: ParkingSpot[] = await response.json();
+        setSpots(data);
+      } catch (err) {
+        setError('נכשל בטעינת רשימת החניות מהשרת');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSpots();
+  }, []);
+
+  // 4. טיפול במצבי קצה (טעינה ושגיאה)
+  if (loading) return <div style={{ padding: '24px', textAlign: 'center' }}>טוען חניות מהשרת...</div>;
+  if (error) return <div style={{ padding: '24px', color: 'red', textAlign: 'center' }}>{error}</div>;
+
+  const firstSpot = spots[0];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div
@@ -43,7 +83,7 @@ function SearchMapScreen() {
             width: '320px',
           }}
         >
-          רח' הרצל 14, תל אביב-יפו
+          {firstSpot ? `${firstSpot.address}, ${firstSpot.city}` : 'רחוב הרצל 14, תל אביב-יפו'}
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <span
@@ -56,7 +96,7 @@ function SearchMapScreen() {
               fontWeight: 700,
             }}
           >
-            הכל ({parkings.length})
+            הכל ({spots.length})
           </span>
           <span
             style={{
@@ -68,7 +108,7 @@ function SearchMapScreen() {
               fontSize: '12px',
             }}
           >
-            מקורה בלבד ☂️
+            עמדת טעינה ⚡
           </span>
         </div>
       </div>
@@ -97,22 +137,24 @@ function SearchMapScreen() {
               width: 'fit-content',
             }}
           >
-            📍 מפת חניות אינטראקטיבית (תצוגה סטטית)
+            📍 מפת חניות אינטראקטיבית
           </div>
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <div
-              style={{
-                background: '#4f46e5',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '999px',
-                fontSize: '12px',
-                fontWeight: 700,
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
-              }}
-            >
-              ₪0.40 / דקה • חניון הרצל 14
-            </div>
+            {firstSpot && (
+              <div
+                style={{
+                  background: '#4f46e5',
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '999px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+                }}
+              >
+                ₪{(firstSpot.basePricePerHour / 60).toFixed(2)} / דקה • {firstSpot.address}
+              </div>
+            )}
           </div>
         </div>
 
@@ -128,17 +170,19 @@ function SearchMapScreen() {
           }}
         >
           <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b' }}>
-            חניות קרובות ביותר
+            חניות זמינות בשרת
           </h4>
-          {parkings.map((parking) => (
+
+          {/* 5. לולאת map להצגת כרטיסי החניות מה-DB */}
+          {spots.map((spot) => (
             <ParkingCard
-              key={parking.id}
-              id={parking.id}
-              title={parking.title}
-              distance={parking.distance}
-              walkTime={parking.walkTime}
-              rating={parking.rating}
-              pricePerMin={parking.pricePerMin}
+              key={spot.spotId}
+              id={spot.spotId}
+              title={`${spot.address}, ${spot.city}`}
+              distance="300 מ'"
+              walkTime="4 דק' הליכה"
+              rating={4.8}
+              pricePerMin={(spot.basePricePerHour / 60).toFixed(2)}
             />
           ))}
         </div>
