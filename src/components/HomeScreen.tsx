@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import Button from './Button';
-import AuthModal from './AuthModal';
+
 
 function HomeScreen() {
-  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
-  const [userEmail, setUserEmail] = useState<string>('driver@parking.co.il');
   const navigate = useNavigate();
+  const userEmail = localStorage.getItem('userEmail') || 'לא מחובר';
 
   return (
     <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '16px 0' }}>
@@ -126,7 +125,7 @@ function HomeScreen() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <Button label="החלף חשבון / התחבר מחדש" onClick={() => setIsAuthOpen(true)} background="#0f172a" color="white" />
+          <Button label="החלף חשבון / התחבר מחדש" onClick={() => navigate('/login')} background="#0f172a" color="white" />
           <Button
             label="לוח בקרה והכנסות"
             onClick={() => navigate('/dashboard')}
@@ -136,9 +135,7 @@ function HomeScreen() {
         </div>
       </div>
 
-      {isAuthOpen && (
-        <AuthModal onClose={() => setIsAuthOpen(false)} onLoginSuccess={setUserEmail} />
-      )}
+     
     </div>
   );
 }

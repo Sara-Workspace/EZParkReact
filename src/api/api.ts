@@ -21,9 +21,10 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   });
 
   // בדיקת תקינות התשובה (כפי שנלמד: fetch לא זורק שגיאה על 404 או 500)
-  if (!response.ok) {
+ if (!response.ok) {
     if (response.status === 401) {
-      localStorage.removeItem('token'); // ניקוי טוקן אם לא מורשה
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
     throw new Error(`Server error: ${response.status}`);
   }

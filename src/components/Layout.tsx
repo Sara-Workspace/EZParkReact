@@ -1,8 +1,27 @@
-// components/Layout.tsx
-import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 function Layout() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+  const isAdmin = JSON.parse(localStorage.getItem('isAdmin') || 'false') as boolean;
+  const role = localStorage.getItem('role');
+  const showAdminLink = Boolean(isAdmin || role === 'Admin');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    navigate('/login');
+  };
+
+  const getNavLinkStyle = ({ isActive }: { isActive: boolean }) => ({
+    color: isActive ? '#38bdf8' : 'white',
+    textDecoration: 'none',
+    fontWeight: isActive ? 700 : 400,
+  });
+
   return (
     <div>
       <header
@@ -18,47 +37,48 @@ function Layout() {
         <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>
           חניה בקליק • פארקי
         </h1>
-        <nav style={{ display: 'flex', gap: '16px' }}>
-          <NavLink
-            to="/"
-            style={({ isActive }) => ({
-              color: isActive ? '#38bdf8' : 'white',
-              textDecoration: 'none',
-              fontWeight: isActive ? 700 : 400,
-            })}
-          >
+        <nav style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <NavLink to="/" style={getNavLinkStyle}>
             בית
           </NavLink>
-          <NavLink
-            to="/search"
-            style={({ isActive }) => ({
-              color: isActive ? '#38bdf8' : 'white',
-              textDecoration: 'none',
-              fontWeight: isActive ? 700 : 400,
-            })}
-          >
+          <NavLink to="/search" style={getNavLinkStyle}>
             חיפוש במפה
           </NavLink>
-          <NavLink
-            to="/add-parking"
-            style={({ isActive }) => ({
-              color: isActive ? '#38bdf8' : 'white',
-              textDecoration: 'none',
-              fontWeight: isActive ? 700 : 400,
-            })}
-          >
+          <NavLink to="/add-parking" style={getNavLinkStyle}>
             הוספת חניה
           </NavLink>
-          <NavLink
-            to="/dashboard"
-            style={({ isActive }) => ({
-              color: isActive ? '#38bdf8' : 'white',
-              textDecoration: 'none',
-              fontWeight: isActive ? 700 : 400,
-            })}
-          >
+          <NavLink to="/dashboard" style={getNavLinkStyle}>
             לוח בקרה
           </NavLink>
+
+          {showAdminLink && (
+            <NavLink to="/admin" style={getNavLinkStyle}>
+              לוח ניהול 🛡️
+            </NavLink>
+          )}
+
+          {token !== null ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              style={{
+                background: '#334155',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              התנתק
+            </button>
+          ) : (
+            <NavLink to="/login" style={getNavLinkStyle}>
+              התחברות
+            </NavLink>
+          )}
         </nav>
       </header>
 
