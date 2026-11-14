@@ -5,6 +5,7 @@ import SearchMapScreen from './components/SearchMapScreen';
 import DetailsScreen from './components/DetailsScreen';
 import NavigationScreen from './components/NavigationScreen';
 import AddParkingScreen from './components/AddParkingScreen';
+import MySpotsScreen from './components/MySpotsScreen';
 import DashboardScreen from './components/DashboardScreen';
 import LoginScreen from './components/LoginScreen';
 import AdminDashboard from './components/AdminDashboard';
@@ -31,6 +32,7 @@ function App() {
         <Route path="/parking/:id" element={<DetailsScreen />} />
         <Route path="/navigation" element={<NavigationScreen />} />
         <Route path="/add-parking" element={<AddParkingScreen />} />
+        <Route path="/my-spots" element={<MySpotsScreen />} />
         <Route path="/dashboard" element={<DashboardScreen />} />
         <Route
           path="/admin"

@@ -47,6 +47,11 @@ function Layout() {
           <NavLink to="/add-parking" style={getNavLinkStyle}>
             הוספת חניה
           </NavLink>
+          {role === 'Owner' && (
+            <NavLink to="/my-spots" style={getNavLinkStyle}>
+              החניות שלי
+            </NavLink>
+          )}
           <NavLink to="/dashboard" style={getNavLinkStyle}>
             לוח בקרה
           </NavLink>

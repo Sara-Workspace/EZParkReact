@@ -1,58 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchParkings } from '../store/parkings/parkingsThunks';
 import ParkingCard from './ParkingCard';
 
-// 1. הגדרת הממשק (Interface) לפי ה-DTO החוזר מה-Backend
-interface ParkingSpot {
-  spotId: number;
-  ownerId: number;
-  address: string;
-  city: string;
-  latitude: number;
-  longitude: number;
-  evCharger: boolean;
-  basePricePerHour: number;
-  isActive: boolean;
-  image?: string;
-}
-
-const API_URL = 'https://localhost:7036/api/ParkingSpots';
-
 function SearchMapScreen() {
-  // 2. שלושת המצבים המנוהלים לפי חומר הלימוד
-  const [spots, setSpots] = useState<ParkingSpot[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { items: allSpots, loading, error } = useAppSelector((state) => state.parkings);
 
-  // 3. שליפת הנתונים בטעינת הקומפוננטה
+  // ערך נגזר: מציגים לנהג רק חניות זמינות
+  const spots = allSpots.filter((spot) => spot.isActive);
+
+  // שליפת הנתונים בטעינת הקומפוננטה - דרך ה-Store ולא fetch ישיר
   useEffect(() => {
-    const fetchSpots = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(API_URL, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
+    dispatch(fetchParkings());
+  }, [dispatch]);
 
-        // בדיקה שהסטטוס תקין (2xx) - כפי שנלמד, fetch לא זורק שגיאה על 404 או 500
-        if (!response.ok) {
-          throw new Error('שגיאת שרת בטעינת החניות');
-        }
-
-        const data: ParkingSpot[] = await response.json();
-        setSpots(data);
-      } catch (err) {
-        setError('נכשל בטעינת רשימת החניות מהשרת');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSpots();
-  }, []);
-
-  // 4. טיפול במצבי קצה (טעינה ושגיאה)
   if (loading) return <div style={{ padding: '24px', textAlign: 'center' }}>טוען חניות מהשרת...</div>;
   if (error) return <div style={{ padding: '24px', color: 'red', textAlign: 'center' }}>{error}</div>;
 

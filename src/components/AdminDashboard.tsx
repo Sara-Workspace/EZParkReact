@@ -1,5 +1,8 @@
 import { useEffect, useState, type CSSProperties } from 'react';
-import { apiFetch } from '../api/api'; 
+import { apiFetch } from '../api/api';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchParkings, updateParking, deleteParking } from '../store/parkings/parkingsThunks';
+import type { ParkingSpot } from '../store/parkings/parkingsState';
 import ScreenSection from './ScreenSection';
 import StatCard from './StatCard';
 import Button from './Button';
@@ -25,55 +28,65 @@ interface OwnerItem {
   isAdmin: boolean;
 }
 
-interface ParkingSpotItem {
-  spotId: number;
-  ownerId: number;
-  address: string;
-  city: string;
-  basePricePerHour: number;
-  evCharger: boolean;
-  isActive: boolean;
-}
-
 function AdminDashboard() {
+  const dispatch = useAppDispatch();
+
+  // חניות - מגיעות מה-Store המרכזי
+  const { items: spots, loading: spotsLoading, error: spotsError } = useAppSelector(
+    (state) => state.parkings
+  );
+
+  // נהגים ובעלים - עדיין state מקומי (בהמשך אפשר להעביר גם אותם ל-Slice)
   const [drivers, setDrivers] = useState<DriverItem[]>([]);
   const [owners, setOwners] = useState<OwnerItem[]>([]);
-  const [spots, setSpots] = useState<ParkingSpotItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [usersLoading, setUsersLoading] = useState<boolean>(true);
+  const [usersError, setUsersError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAdminData = async () => {
+    dispatch(fetchParkings());
+
+    const fetchUsers = async () => {
       try {
-        setLoading(true);
-        const [driversData, ownersData, spotsData] = await Promise.all([
+        const [driversData, ownersData] = await Promise.all([
           apiFetch<DriverItem[]>('/Drivers'),
           apiFetch<OwnerItem[]>('/Owners'),
-          apiFetch<ParkingSpotItem[]>('/ParkingSpots'),
         ]);
         setDrivers(driversData);
         setOwners(ownersData);
-        setSpots(spotsData);
       } catch {
-        setError('שגיאה בטעינת נתוני הניהול. ודא שהנך מחובר כמנהל (Admin).');
+        setUsersError('שגיאה בטעינת נתוני הניהול. ודא שהנך מחובר כמנהל (Admin).');
       } finally {
-        setLoading(false);
+        setUsersLoading(false);
       }
     };
 
-    fetchAdminData();
-  }, []);
+    fetchUsers();
+  }, [dispatch]);
+
+  const loading = usersLoading || spotsLoading;
+  const error = usersError ?? spotsError;
 
   const handleDeleteSpot = async (spotId: number) => {
     const isConfirmed = window.confirm(`האם למחוק לצמיתות את חניה #${spotId}?`);
     if (!isConfirmed) return;
 
     try {
-      await apiFetch<void>(`/ParkingSpots/${spotId}`, { method: 'DELETE' });
-      // עדכון מערך החניות ללא מוטציה (Immutability)
-      setSpots((prevSpots) => prevSpots.filter((spot) => spot.spotId !== spotId));
-    } catch {
-      setError('מחיקת החניה נכשלה');
+      setActionError(null);
+      await dispatch(deleteParking(spotId)).unwrap();
+     } catch (err) {
+      const message = (err as { message?: string }).message ?? 'שגיאה לא ידועה';
+      setActionError(`מחיקת החניה נכשלה: ${message}`);
+    }
+  };
+
+  const handleToggleActive = async (spot: ParkingSpot) => {
+    try {
+      setActionError(null);
+      await dispatch(updateParking({ ...spot, isActive: !spot.isActive })).unwrap();
+    } catch (err) {
+      const message = (err as { message?: string }).message ?? 'שגיאה לא ידועה';
+      setActionError(`עדכון הזמינות נכשל: ${message}`);
     }
   };
 
@@ -116,6 +129,12 @@ function AdminDashboard() {
         <StatCard title="חניות במערכת" value={`${spots.length}`} valueColor="#0f172a" />
       </div>
 
+      {actionError !== null && (
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '10px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+          {actionError}
+        </div>
+      )}
+
       <ScreenSection title={`ניהול כלל החניות במערכת (${spots.length})`}>
         {spots.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
@@ -127,6 +146,7 @@ function AdminDashboard() {
                   <th style={thStyle}>מזהה בעלים</th>
                   <th style={thStyle}>מחיר לשעה</th>
                   <th style={thStyle}>טעינה</th>
+                  <th style={thStyle}>זמינות</th>
                   <th style={thStyle}>פעולות</th>
                 </tr>
               </thead>
@@ -140,6 +160,14 @@ function AdminDashboard() {
                     <td style={tdStyle}>{spot.ownerId}</td>
                     <td style={tdStyle}>₪{spot.basePricePerHour}</td>
                     <td style={tdStyle}>{spot.evCharger ? '⚡' : '—'}</td>
+                    <td style={tdStyle}>
+                      <Button
+                        label={spot.isActive ? 'סמן כלא זמינה' : 'סמן כזמינה'}
+                        onClick={() => handleToggleActive(spot)}
+                        background="#e0e7ff"
+                        color="#4338ca"
+                      />
+                    </td>
                     <td style={tdStyle}>
                       <Button
                         label="מחק חניה"
