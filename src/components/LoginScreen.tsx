@@ -2,6 +2,8 @@ import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../api/api'; // התאימי לנתיב המדויק של api.ts אצלך (כמו ב-AdminDashboard)
 import Button from './Button';
+import { useAppDispatch } from '../store/hooks';
+import { setUser } from '../store/user/userSlice';
 
 interface AuthResponse {
   token?: string;
@@ -13,11 +15,14 @@ interface AuthResponse {
     email?: string;
     firstName?: string;
     lastName?: string;
+    points?: number;
+    licensePlate?: string | null;
   };
 }
 
 function LoginScreen() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [registerRole, setRegisterRole] = useState<'Driver' | 'Owner'>('Driver');
@@ -55,6 +60,18 @@ function LoginScreen() {
     if (resolvedUserId !== undefined) {
       localStorage.setItem('userId', resolvedUserId.toString());
     }
+
+    // שמירת פרטי המשתמש ב-Store המרכזי, כדי שכל המסכים יוכלו להציג אותם
+    dispatch(
+      setUser({
+        userId: resolvedUserId ?? null,
+        role: resolvedRole,
+        firstName: data.user?.firstName ?? '',
+        lastName: data.user?.lastName ?? '',
+        points: data.user?.points ?? 0,
+        licensePlate: data.user?.licensePlate ?? null,
+      })
+    );
 
     if (isAdminUser) {
       navigate('/admin');

@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 
@@ -66,7 +65,7 @@ function HomeScreen() {
           </div>
           <Button
             label="התחל בחיפוש חניה במפה ←"
-            onClick={() => navigate('/search')}
+            onClick={() => navigate('/license-plate')}
             background="#4f46e5"
             color="white"
             fullWidth={true}

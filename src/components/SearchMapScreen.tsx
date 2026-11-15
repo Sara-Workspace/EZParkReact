@@ -6,14 +6,26 @@ import ParkingCard from './ParkingCard';
 function SearchMapScreen() {
   const dispatch = useAppDispatch();
   const { items: allSpots, loading, error } = useAppSelector((state) => state.parkings);
+  const points = useAppSelector((state) => state.user.points);
 
   // ערך נגזר: מציגים לנהג רק חניות זמינות
   const spots = allSpots.filter((spot) => spot.isActive);
 
   // שליפת הנתונים בטעינת הקומפוננטה - דרך ה-Store ולא fetch ישיר
+  // אם נגמרו הנקודות, לא טוענים את רשימת החניות בכלל
   useEffect(() => {
-    dispatch(fetchParkings());
-  }, [dispatch]);
+    if (points > 0) {
+      dispatch(fetchParkings());
+    }
+  }, [dispatch, points]);
+
+  if (points <= 0) {
+    return (
+      <div style={{ padding: '24px', textAlign: 'center', color: '#dc2626', fontWeight: 700 }}>
+        נגמרו לך הנקודות למימוש לחודש זה.
+      </div>
+    );
+  }
 
   if (loading) return <div style={{ padding: '24px', textAlign: 'center' }}>טוען חניות מהשרת...</div>;
   if (error) return <div style={{ padding: '24px', color: 'red', textAlign: 'center' }}>{error}</div>;

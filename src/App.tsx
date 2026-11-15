@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomeScreen from './components/HomeScreen';
+import LicensePlateScreen from './components/LicensePlateScreen';
 import SearchMapScreen from './components/SearchMapScreen';
 import DetailsScreen from './components/DetailsScreen';
 import NavigationScreen from './components/NavigationScreen';
@@ -28,6 +29,7 @@ function App() {
         }
       >
         <Route path="/" element={<HomeScreen />} />
+        <Route path="/license-plate" element={<LicensePlateScreen />} />
         <Route path="/search" element={<SearchMapScreen />} />
         <Route path="/parking/:id" element={<DetailsScreen />} />
         <Route path="/navigation" element={<NavigationScreen />} />

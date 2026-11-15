@@ -1,7 +1,11 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { logout } from '../store/user/userSlice';
 
 function Layout() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user);
   const token = localStorage.getItem('token');
   const isAdmin = JSON.parse(localStorage.getItem('isAdmin') || 'false') as boolean;
   const role = localStorage.getItem('role');
@@ -13,6 +17,7 @@ function Layout() {
     localStorage.removeItem('isAdmin');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userId');
+    dispatch(logout());
     navigate('/login');
   };
 
@@ -60,6 +65,12 @@ function Layout() {
             <NavLink to="/admin" style={getNavLinkStyle}>
               לוח ניהול 🛡️
             </NavLink>
+          )}
+
+          {token !== null && (
+            <span style={{ fontSize: '13px', color: '#cbd5e1' }}>
+              👤 {user.firstName} • {user.points} נקודות
+            </span>
           )}
 
           {token !== null ? (
