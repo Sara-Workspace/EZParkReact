@@ -7,6 +7,11 @@ interface MeResponse {
 
 // מביאה מהשרת את הנקודות העדכניות (לפי הטוקן)
 export const refreshPoints = createAsyncThunk<number>('user/refreshPoints', async () => {
-  const me = await apiFetch<MeResponse>('/Drivers/me');
-  return me.points;
+  try {
+    const me = await apiFetch<MeResponse>('/Drivers/me');
+    return me.points;
+  } catch {
+    // למשתמש מסוג Owner בלבד ייתכן שעדיין לא נוצר פרופיל Driver
+    return 0;
+  }
 });
