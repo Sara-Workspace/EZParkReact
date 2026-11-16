@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import parkingsReducer from './parkings/parkingsSlice';
 import userReducer from './user/userSlice';
 import searchReducer from './search/searchSlice';
+import sessionReducer from './session/sessionSlice';
  
 export const store = configureStore({
   reducer: {
     parkings: parkingsReducer,
     user: userReducer,
     search: searchReducer,
+    session: sessionReducer,
 
   },
 });

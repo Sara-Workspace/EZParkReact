@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { searchSpots } from '../store/search/searchThunks';
 import { setDestination } from '../store/search/searchSlice';
 import { geocodeAddress } from '../api/geocode';
+import { Navigate } from 'react-router-dom';
 import ParkingCard from './ParkingCard';
 import Button from './Button';
 
@@ -28,6 +29,8 @@ function SearchMapScreen() {
   const points = useAppSelector((state) => state.user.points);
   const { destination, excludeIds, results, loading, error } = useAppSelector((state) => state.search);
 
+  const licensePlate = useAppSelector((state) => state.user.licensePlate);
+
   const [addressInput, setAddressInput] = useState<string>(destination?.address ?? '');
   const [sortBy, setSortBy] = useState<SortBy>('smart');
   const [geoLoading, setGeoLoading] = useState<boolean>(false);
@@ -47,6 +50,11 @@ function SearchMapScreen() {
     }
   }, [dispatch, points, destination, excludeIds, sortBy]);
 
+  // בלי מספר רישוי שמור אי אפשר להמשיך: חוזרים למסך ההזנה
+  if (!licensePlate) {
+    return <Navigate to="/license-plate" replace />;
+  }
+  
   if (points <= 0) {
     return (
       <div style={{ padding: '24px', textAlign: 'center', color: '#dc2626', fontWeight: 700 }}>
