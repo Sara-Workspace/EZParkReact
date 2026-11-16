@@ -6,6 +6,7 @@ import {
   deductPointsReducer,
   setLicensePlateReducer,
 } from './userReducers';
+import { refreshPoints } from './userThunks';
 
 const userSlice = createSlice({
   name: 'user',
@@ -15,6 +16,11 @@ const userSlice = createSlice({
     logout: logoutReducer,
     deductPoints: deductPointsReducer,
     setLicensePlate: setLicensePlateReducer,
+  },
+  extraReducers: (builder) => {
+    builder.addCase(refreshPoints.fulfilled, (state, action) => {
+      state.points = action.payload;
+    });
   },
 });
 

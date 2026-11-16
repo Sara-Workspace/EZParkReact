@@ -13,6 +13,7 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminRoute from './components/AdminRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './components/NotFound';
+import ParkingSessionScreen from './components/ParkingSessionScreen';
 
 function App() {
   return (
@@ -36,6 +37,8 @@ function App() {
         <Route path="/add-parking" element={<AddParkingScreen />} />
         <Route path="/my-spots" element={<MySpotsScreen />} />
         <Route path="/dashboard" element={<DashboardScreen />} />
+        <Route path="/navigation" element={<NavigationScreen />} />
+        <Route path="/parking-session" element={<ParkingSessionScreen />} />
         <Route
           path="/admin"
           element={

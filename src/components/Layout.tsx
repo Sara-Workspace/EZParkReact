@@ -1,11 +1,28 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { logout } from '../store/user/userSlice';
+import { useEffect } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { refreshPoints } from '../store/user/userThunks';
+import { useAppDispatch, useAppSelector } from '../store/hooks'; // התאם לנתיב שלך
+import { logout } from '../store/user/userSlice'; // התאם לנתיב של ה-Slice שלך
+import { loadActiveReservation } from '../store/session/sessionThunks';
+
+
 
 function Layout() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
+  const location = useLocation();
+
+  const hasActiveParking = useAppSelector((state) => state.session.reservation?.status === 'Active');
+
+  // הנקודות בכותרת מתעדכנות מהשרת בכל מעבר בין מסכים
+   useEffect(() => {
+    if (localStorage.getItem('token') !== null) {
+      dispatch(refreshPoints());
+      dispatch(loadActiveReservation());
+    }
+  }, [dispatch, location.pathname]);
+
   const token = localStorage.getItem('token');
   const isAdmin = JSON.parse(localStorage.getItem('isAdmin') || 'false') as boolean;
   const role = localStorage.getItem('role');
@@ -46,9 +63,14 @@ function Layout() {
           <NavLink to="/" style={getNavLinkStyle}>
             בית
           </NavLink>
-          <NavLink to="/search" style={getNavLinkStyle}>
-            חיפוש במפה
+          <NavLink to="/license-plate" style={getNavLinkStyle}>
+            חפש חניה
           </NavLink>
+                    {hasActiveParking && (
+            <NavLink to="/parking-session" style={getNavLinkStyle}>
+              ⏱️ חניה פעילה
+            </NavLink>
+          )}
           <NavLink to="/add-parking" style={getNavLinkStyle}>
             הוספת חניה
           </NavLink>

@@ -46,7 +46,7 @@ function NavigationScreen() {
     }
   };
 
-  const handleParked = async () => {
+   const handleParked = async () => {
     if (busy) return;
     setBusy(true);
     setError(null);
@@ -56,7 +56,22 @@ function NavigationScreen() {
       });
       dispatch(setReservation(reservation));
       navigate('/parking-session');
-    } catch {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+
+      if (message.includes('409')) {
+        // החניה שמורה כעת לנהגת אחרת (למשל אחרי שהשרת הופעל מחדש)
+        dispatch(excludeSpot(spot.spotId));
+        dispatch(clearHold());
+        navigate('/search');
+        return;
+      }
+
+      if (message.includes('400')) {
+        setError('לא ניתן להתחיל חניה. ייתכן שיש לך כבר חניה פעילה, ואז צריך לסיים אותה קודם (הקישור בתפריט).');
+        return;
+      }
+
       setError('לא הצלחנו להתחיל את החניה. ייתכן שהשמירה פגה.');
     } finally {
       setBusy(false);
