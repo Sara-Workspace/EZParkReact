@@ -1,18 +1,19 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../api/api'; // ודאי שהנתיב תואם למיקום של api.ts אצלך
+import { useAppDispatch } from '../store/hooks';
+import { addParking } from '../store/parkings/parkingsThunks';
 import Button from './Button';
 
 function AddParkingScreen() {
   const navigate = useNavigate();
-  const role = localStorage.getItem('role');
+  const dispatch = useAppDispatch();
 
   // שדות הטופס המבוקרים לפי ParkingSpotCreateDTO
   const [address, setAddress] = useState<string>('');
   const [city, setCity] = useState<string>('');
   const [basePricePerHour, setBasePricePerHour] = useState<string>('25');
-  const [latitude, setLatitude] = useState<string>('32.0853');
-  const [longitude, setLongitude] = useState<string>('34.7818');
+  const [latitude, setLatitude] = useState<string>('');
+  const [longitude, setLongitude] = useState<string>('');
   const [evCharger, setEvCharger] = useState<boolean>(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -26,41 +27,6 @@ function AddParkingScreen() {
     !Number.isNaN(numericHourlyPrice) && numericHourlyPrice > 0
       ? (numericHourlyPrice / 60).toFixed(2)
       : '0.00';
-
-  // החזרה מוקדמת (Early Return) אם המשתמש המחובר אינו בעל חניה
-  if (role !== 'Owner') {
-    return (
-      <div
-        style={{
-          maxWidth: '560px',
-          margin: '40px auto',
-          background: 'white',
-          border: '1px solid #e2e8f0',
-          borderRadius: '16px',
-          padding: '24px',
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-        }}
-      >
-        <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-          גישה לבעלי חניות בלבד 🅿️
-        </h3>
-        <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
-          רק משתמש המחובר כבעל חניה (Owner) יכול לפרסם חניה להשכרה.
-        </p>
-        <div>
-          <Button
-            label="מעבר להתחברות / הרשמה כבעל חניה"
-            onClick={() => navigate('/login')}
-            background="#059669"
-            color="white"
-          />
-        </div>
-      </div>
-    );
-  }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files && e.target.files.length > 0 ? e.target.files[0] : null;
@@ -80,21 +46,22 @@ function AddParkingScreen() {
       formData.append('Address', address);
       formData.append('City', city);
       formData.append('BasePricePerHour', basePricePerHour);
-      formData.append('Latitude', latitude);
-      formData.append('Longitude', longitude);
+            // מיקום אופציונלי: אם השדות ריקים, השרת מאתר אותו לפי הכתובת
+      if (latitude.trim() !== '' && longitude.trim() !== '') {
+        formData.append('Latitude', latitude);
+        formData.append('Longitude', longitude);
+      }
       formData.append('EvCharger', String(evCharger));
 
       if (imageFile !== null) {
         formData.append('ImageFile', imageFile);
       }
 
-      await apiFetch('/ParkingSpots', {
-        method: 'POST',
-        body: formData,
-      });
+      // unwrap() גורם ל-dispatch לזרוק שגיאה אם הבקשה נכשלה, כדי שה-catch יעבוד
+      await dispatch(addParking(formData)).unwrap();
 
       // מעבר ללוח הבקרה לאחר פרסום מוצלח
-      navigate('/dashboard');
+     navigate('/my-spots');
     } catch {
       setError('שמירת החניה נכשלה. ודא שכל הערכים תקינים ושאתה מחובר כבעל חניה.');
     } finally {
@@ -199,13 +166,12 @@ function AddParkingScreen() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>
             <label htmlFor="spot-lat" style={labelStyle}>
-              קו רוחב (Latitude)
+             קו רוחב (אופציונלי)(Latitude)
             </label>
             <input
               id="spot-lat"
               type="number"
               step="any"
-              required
               value={latitude}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setLatitude(e.target.value)}
               style={inputStyle}
@@ -214,13 +180,12 @@ function AddParkingScreen() {
 
           <div>
             <label htmlFor="spot-lng" style={labelStyle}>
-              קו אורך (Longitude)
+             קו אורך (אופציונלי)(Longitude)
             </label>
             <input
               id="spot-lng"
               type="number"
               step="any"
-              required
               value={longitude}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setLongitude(e.target.value)}
               style={inputStyle}

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { initialState } from './parkingsState';
-import { fetchParkings, addParking, updateParking, deleteParking } from './parkingsThunks';
+import { fetchParkings, fetchMyParkings, addParking, updateParking, deleteParking } from './parkingsThunks';
 
 const parkingsSlice = createSlice({
   name: 'parkings',
@@ -21,7 +21,19 @@ const parkingsSlice = createSlice({
         state.loading = false;
         state.error = 'נכשל בטעינת רשימת החניות מהשרת';
       })
-
+      // ---------- GET (החניות שלי) ----------
+      .addCase(fetchMyParkings.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyParkings.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchMyParkings.rejected, (state) => {
+        state.loading = false;
+        state.error = 'נכשל בטעינת החניות שלך מהשרת';
+      })
       // ---------- POST ----------
       .addCase(addParking.fulfilled, (state, action) => {
         state.items.push(action.payload);

@@ -66,7 +66,7 @@ function Layout() {
           <NavLink to="/license-plate" style={getNavLinkStyle}>
             חפש חניה
           </NavLink>
-                    {hasActiveParking && (
+          {hasActiveParking && (
             <NavLink to="/parking-session" style={getNavLinkStyle}>
               ⏱️ חניה פעילה
             </NavLink>
@@ -74,11 +74,11 @@ function Layout() {
           <NavLink to="/add-parking" style={getNavLinkStyle}>
             הוספת חניה
           </NavLink>
-          {role === 'Owner' && (
+          
             <NavLink to="/my-spots" style={getNavLinkStyle}>
               החניות שלי
             </NavLink>
-          )}
+          
           <NavLink to="/dashboard" style={getNavLinkStyle}>
             לוח בקרה
           </NavLink>

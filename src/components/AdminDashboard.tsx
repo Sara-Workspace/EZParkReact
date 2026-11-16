@@ -3,6 +3,8 @@ import { apiFetch } from '../api/api';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchParkings, updateParking, deleteParking } from '../store/parkings/parkingsThunks';
 import type { ParkingSpot } from '../store/parkings/parkingsState';
+import type { Reservation } from '../types';
+import { parseServerUtc } from '../utils/time';
 import ScreenSection from './ScreenSection';
 import StatCard from './StatCard';
 import Button from './Button';
@@ -39,6 +41,7 @@ function AdminDashboard() {
   // נהגים ובעלים - עדיין state מקומי (בהמשך אפשר להעביר גם אותם ל-Slice)
   const [drivers, setDrivers] = useState<DriverItem[]>([]);
   const [owners, setOwners] = useState<OwnerItem[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   const [usersLoading, setUsersLoading] = useState<boolean>(true);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -48,12 +51,14 @@ function AdminDashboard() {
 
     const fetchUsers = async () => {
       try {
-        const [driversData, ownersData] = await Promise.all([
+               const [driversData, ownersData, reservationsData] = await Promise.all([
           apiFetch<DriverItem[]>('/Drivers'),
           apiFetch<OwnerItem[]>('/Owners'),
+          apiFetch<Reservation[]>('/Reservations'),
         ]);
         setDrivers(driversData);
         setOwners(ownersData);
+        setReservations(reservationsData);
       } catch {
         setUsersError('שגיאה בטעינת נתוני הניהול. ודא שהנך מחובר כמנהל (Admin).');
       } finally {
@@ -82,6 +87,12 @@ function AdminDashboard() {
 
   const handleToggleActive = async (spot: ParkingSpot) => {
     try {
+          const hasActiveReservation = reservations.some(
+      (r) => r.spotID === spot.spotId && r.status === 'Active'
+    );
+    if (hasActiveReservation && !window.confirm('יש הזמנה פעילה על החניה הזו. שינוי הזמינות לא יסגור אותה. להמשיך?')) {
+      return;
+    }
       setActionError(null);
       await dispatch(updateParking({ ...spot, isActive: !spot.isActive })).unwrap();
     } catch (err) {
@@ -116,6 +127,25 @@ function AdminDashboard() {
     padding: '10px 12px',
     borderBottom: '1px solid #f1f5f9',
   };
+    const sortedReservations = [...reservations].sort((a, b) => b.reservationID - a.reservationID);
+
+      // חיפוש מהיר לפי מזהה: כך מציגים שמות וכתובות במקום מספרים
+  const spotById = new Map(spots.map((s) => [s.spotId, s]));
+  const driverNameById = new Map(
+    drivers.map((d) => [d.driverID ?? d.driverId ?? 0, `${d.firstName} ${d.lastName}`])
+  );
+  const ownerNameById = new Map(
+    owners.map((o) => [o.ownerID ?? o.ownerId ?? 0, `${o.firstName} ${o.lastName}`])
+  );
+
+  const statusLabels: Record<string, string> = {
+    Active: 'פעילה',
+    Completed: 'הסתיימה',
+    Pending: 'ממתינה',
+  };
+
+  const formatDateTime = (value: string): string =>
+    new Date(parseServerUtc(value)).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -143,7 +173,7 @@ function AdminDashboard() {
                 <tr>
                   <th style={thStyle}>מזהה</th>
                   <th style={thStyle}>כתובת ועיר</th>
-                  <th style={thStyle}>מזהה בעלים</th>
+                  <th style={thStyle}>בעלת החניה</th>
                   <th style={thStyle}>מחיר לשעה</th>
                   <th style={thStyle}>טעינה</th>
                   <th style={thStyle}>זמינות</th>
@@ -157,7 +187,7 @@ function AdminDashboard() {
                     <td style={tdStyle}>
                       {spot.address}, {spot.city}
                     </td>
-                    <td style={tdStyle}>{spot.ownerId}</td>
+                    <td style={tdStyle}>{ownerNameById.get(spot.ownerId) ?? `#${spot.ownerId}`}</td>
                     <td style={tdStyle}>₪{spot.basePricePerHour}</td>
                     <td style={tdStyle}>{spot.evCharger ? '⚡' : '—'}</td>
                     <td style={tdStyle}>
@@ -185,6 +215,66 @@ function AdminDashboard() {
           <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>אין חניות רשומות במערכת.</p>
         )}
       </ScreenSection>
+
+
+      <ScreenSection title={`כלל ההזמנות במערכת (${reservations.length})`}>
+        {sortedReservations.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={tableStyle}>
+                            <thead>
+                <tr>
+                  <th style={thStyle}>מזהה</th>
+                  <th style={thStyle}>חניה</th>
+                  <th style={thStyle}>בעלת החניה</th>
+                  <th style={thStyle}>נהגת</th>
+                  <th style={thStyle}>התחלה</th>
+                  <th style={thStyle}>סיום</th>
+                  <th style={thStyle}>עלות (נק')</th>
+                  <th style={thStyle}>סטטוס</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedReservations.map((reservation) => (
+                  <tr key={reservation.reservationID}>
+                    <td style={tdStyle}>#{reservation.reservationID}</td>
+                                        <td style={tdStyle}>
+                      {spotById.get(reservation.spotID) !== undefined
+                        ? `${spotById.get(reservation.spotID)!.address}, ${spotById.get(reservation.spotID)!.city}`
+                        : `#${reservation.spotID}`}
+                    </td>
+                    <td style={tdStyle}>
+                      {(() => {
+                        const ownerId = spotById.get(reservation.spotID)?.ownerId;
+                        return ownerId !== undefined ? ownerNameById.get(ownerId) ?? `#${ownerId}` : '—';
+                      })()}
+                    </td>
+                    <td style={tdStyle}>
+                      {driverNameById.get(reservation.driverID) ?? `#${reservation.driverID}`}
+                    </td>
+                    <td style={tdStyle}>{formatDateTime(reservation.startTime)}</td>
+                    <td style={tdStyle}>
+                      {reservation.status === 'Active' ? '—' : formatDateTime(reservation.endTime)}
+                    </td>
+                    <td style={tdStyle}>{reservation.totalPrice}</td>
+                    <td
+                      style={{
+                        ...tdStyle,
+                        fontWeight: 700,
+                        color: reservation.status === 'Active' ? '#d97706' : '#059669',
+                      }}
+                    >
+                      {statusLabels[reservation.status] ?? reservation.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>אין הזמנות במערכת.</p>
+        )}
+      </ScreenSection>
+
 
       <ScreenSection title={`רשימת בעלי חניות (${owners.length})`}>
         {owners.length > 0 ? (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchParkings, updateParking } from '../store/parkings/parkingsThunks';
+import { fetchMyParkings, updateParking } from '../store/parkings/parkingsThunks';
 import type { ParkingSpot } from '../types';
 import InfoCard from './InfoCard';
 import Button from './Button';
@@ -12,17 +12,17 @@ function MySpotsScreen() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { items, loading, error } = useAppSelector((state) => state.parkings);
-  const userId = Number(localStorage.getItem('userId') || 0);
+ 
 
   const [priceDrafts, setPriceDrafts] = useState<Record<number, string>>({});
   const [savingId, setSavingId] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ id: number; type: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
-    dispatch(fetchParkings());
+    dispatch(fetchMyParkings());
   }, [dispatch]);
 
-  const mySpots = items.filter((spot) => spot.ownerId === userId);
+    const mySpots = items; // השרת כבר החזיר רק את החניות שלה
 
   const getPriceInput = (spot: ParkingSpot): string =>
     priceDrafts[spot.spotId] !== undefined ? priceDrafts[spot.spotId] : String(spot.basePricePerHour);

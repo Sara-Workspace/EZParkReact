@@ -29,3 +29,7 @@ export const deleteParking = createAsyncThunk('parkings/delete', async (spotId: 
   await apiFetch<void>(`/ParkingSpots/${spotId}`, { method: 'DELETE' });
   return spotId;
 });
+// GET - החניות של המשתמשת המחוברת בלבד (השרת מזהה לפי האימייל בטוקן)
+export const fetchMyParkings = createAsyncThunk('parkings/fetchMine', async () => {
+  return await apiFetch<ParkingSpot[]>('/ParkingSpots/my');
+});
