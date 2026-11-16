@@ -6,11 +6,10 @@ interface ParkingCardProps {
   title: string;
   distance: string;
   walkTime: string;
-  rating: number;
   pricePerMin: string;
 }
 
-function ParkingCard({ id, title, distance, walkTime, rating, pricePerMin }: ParkingCardProps) {
+function ParkingCard({ id, title, distance, walkTime, pricePerMin }: ParkingCardProps) {
   const navigate = useNavigate(); // 2. הפעלת ההוק
 
   return (
@@ -33,7 +32,7 @@ function ParkingCard({ id, title, distance, walkTime, rating, pricePerMin }: Par
         </div>
         <div>
           <h5 style={{ fontSize: '12px', fontWeight: 700 }}>{title}</h5>
-          <p style={{ fontSize: '10px', color: '#64748b' }}>{distance} • {walkTime} • ⭐ {rating}</p>
+          <p style={{ fontSize: '10px', color: '#64748b' }}>{distance} • {walkTime} • {walkTime}</p>
         </div>
       </div>
       <div style={{ textAlign: 'left' }}>

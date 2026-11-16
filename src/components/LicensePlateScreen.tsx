@@ -40,7 +40,7 @@ function LicensePlateScreen() {
     setPlate(e.target.value);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const cleanPlate = plate.trim();
@@ -53,13 +53,12 @@ function LicensePlateScreen() {
     setError(null);
 
     try {
-      // בשרת מספר הרישוי שמור אצל נהג בלבד
-      if (user.role === 'Driver' && user.userId !== null) {
-        await apiFetch<unknown>(`/Drivers/${user.userId}/license-plate`, {
-          method: 'PUT',
-          body: JSON.stringify({ licensePlate: cleanPlate }),
-        });
-      }
+     // הנתיב מזהה את המשתמש לפי הטוקן, ויוצר פרופיל נהג אם עדיין אין (גם אצל Owner)
+      await apiFetch<unknown>('/Drivers/my-plate', {
+        method: 'PUT',
+        body: JSON.stringify({ licensePlate: cleanPlate }),
+      });
+      
 
       dispatch(setLicensePlate(cleanPlate));
       navigate('/search');

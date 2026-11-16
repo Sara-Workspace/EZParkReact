@@ -1,23 +1,51 @@
-import { useEffect } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchParkings } from '../store/parkings/parkingsThunks';
+import { searchSpots } from '../store/search/searchThunks';
+import { setDestination } from '../store/search/searchSlice';
+import { geocodeAddress } from '../api/geocode';
 import ParkingCard from './ParkingCard';
+import Button from './Button';
+
+type SortBy = 'smart' | 'distance' | 'price';
+
+const SORT_OPTIONS: { value: SortBy; label: string }[] = [
+  { value: 'smart', label: 'מומלץ' },
+  { value: 'distance', label: 'הכי קרוב' },
+  { value: 'price', label: 'הכי זול' },
+];
+
+function formatDistance(km: number): string {
+  return km < 1 ? `${Math.round(km * 1000)} מ'` : `${km.toFixed(1)} ק"מ`;
+}
+
+// בערך 12 דקות הליכה לק"מ
+function formatWalkTime(km: number): string {
+  return `${Math.max(1, Math.round(km * 12))} דק' הליכה`;
+}
 
 function SearchMapScreen() {
   const dispatch = useAppDispatch();
-  const { items: allSpots, loading, error } = useAppSelector((state) => state.parkings);
   const points = useAppSelector((state) => state.user.points);
+  const { destination, excludeIds, results, loading, error } = useAppSelector((state) => state.search);
 
-  // ערך נגזר: מציגים לנהג רק חניות זמינות
-  const spots = allSpots.filter((spot) => spot.isActive);
+  const [addressInput, setAddressInput] = useState<string>(destination?.address ?? '');
+  const [sortBy, setSortBy] = useState<SortBy>('smart');
+  const [geoLoading, setGeoLoading] = useState<boolean>(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
 
-  // שליפת הנתונים בטעינת הקומפוננטה - דרך ה-Store ולא fetch ישיר
-  // אם נגמרו הנקודות, לא טוענים את רשימת החניות בכלל
+  // חיפוש מחדש בכל שינוי ביעד, ברשימת ההחרגות או במיון
   useEffect(() => {
-    if (points > 0) {
-      dispatch(fetchParkings());
+    if (points > 0 && destination !== null) {
+      dispatch(
+        searchSpots({
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+          excludeIds,
+          sortBy,
+        })
+      );
     }
-  }, [dispatch, points]);
+  }, [dispatch, points, destination, excludeIds, sortBy]);
 
   if (points <= 0) {
     return (
@@ -27,139 +55,114 @@ function SearchMapScreen() {
     );
   }
 
-  if (loading) return <div style={{ padding: '24px', textAlign: 'center' }}>טוען חניות מהשרת...</div>;
-  if (error) return <div style={{ padding: '24px', color: 'red', textAlign: 'center' }}>{error}</div>;
+  const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (addressInput.trim() === '') {
+      setGeoError('יש להזין כתובת יעד');
+      return;
+    }
 
-  const firstSpot = spots[0];
+    setGeoLoading(true);
+    setGeoError(null);
+    try {
+      const found = await geocodeAddress(addressInput.trim());
+      if (found === null) {
+        setGeoError('הכתובת לא נמצאה. נסי לכתוב רחוב, מספר ועיר.');
+        return;
+      }
+      dispatch(setDestination(found));
+    } catch {
+      setGeoError('לא הצלחנו לאתר את הכתובת כרגע. נסי שוב.');
+    } finally {
+      setGeoLoading(false);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div
+      <form
+        onSubmit={handleSearch}
         style={{
           background: '#f8fafc',
           border: '1px solid #e2e8f0',
           borderRadius: '16px',
           padding: '16px',
           display: 'flex',
-          justifyContent: 'space-between',
+          gap: '12px',
           alignItems: 'center',
         }}
       >
-        <div
+        <input
+          type="text"
+          value={addressInput}
+          onChange={(e) => setAddressInput(e.target.value)}
+          placeholder="לאן נוסעים? לדוגמה: הרצל 14, תל אביב"
           style={{
-            background: 'white',
-            border: '1px solid #cbd5e1',
+            flex: 1,
+            padding: '10px 12px',
             borderRadius: '12px',
-            padding: '8px 16px',
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#1e293b',
-            width: '320px',
-          }}
-        >
-          {firstSpot ? `${firstSpot.address}, ${firstSpot.city}` : 'רחוב הרצל 14, תל אביב-יפו'}
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <span
-            style={{
-              padding: '8px 12px',
-              background: '#4f46e5',
-              color: 'white',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: 700,
-            }}
-          >
-            הכל ({spots.length})
-          </span>
-          <span
-            style={{
-              padding: '8px 12px',
-              background: 'white',
-              border: '1px solid #cbd5e1',
-              color: '#334155',
-              borderRadius: '12px',
-              fontSize: '12px',
-            }}
-          >
-            עמדת טעינה ⚡
-          </span>
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-        <div
-          style={{
-            height: '420px',
-            background: '#e2e8f0',
             border: '1px solid #cbd5e1',
-            borderRadius: '16px',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
+            boxSizing: 'border-box',
           }}
-        >
-          <div
-            style={{
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#475569',
-              background: 'rgba(255, 255, 255, 0.8)',
-              padding: '8px',
-              borderRadius: '12px',
-              width: 'fit-content',
-            }}
-          >
-            📍 מפת חניות אינטראקטיבית
-          </div>
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            {firstSpot && (
-              <div
-                style={{
-                  background: '#4f46e5',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: '999px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
-                }}
-              >
-                ₪{(firstSpot.basePricePerHour / 60).toFixed(2)} / דקה • {firstSpot.address}
-              </div>
-            )}
-          </div>
-        </div>
+        />
+        <Button label={geoLoading ? 'מחפש כתובת...' : 'חפשי חניה'} background="#4f46e5" color="white" />
+      </form>
 
-        <div
-          style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '16px',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-          }}
-        >
-          <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b' }}>
-            חניות זמינות בשרת
-          </h4>
+      {geoError !== null && (
+        <div style={{ color: '#dc2626', fontSize: '13px', fontWeight: 700 }}>{geoError}</div>
+      )}
 
-          {/* 5. לולאת map להצגת כרטיסי החניות מה-DB */}
-          {spots.map((spot) => (
-            <ParkingCard
-              key={spot.spotId}
-              id={spot.spotId}
-              title={`${spot.address}, ${spot.city}`}
-              distance="300 מ'"
-              walkTime="4 דק' הליכה"
-              rating={4.8}
-              pricePerMin={(spot.basePricePerHour / 60).toFixed(2)}
-            />
+      {destination !== null && (
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '12px', color: '#64748b' }}>מיון:</span>
+          {SORT_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setSortBy(option.value)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: sortBy === option.value ? 'none' : '1px solid #cbd5e1',
+                background: sortBy === option.value ? '#4f46e5' : 'white',
+                color: sortBy === option.value ? 'white' : '#334155',
+              }}
+            >
+              {option.label}
+            </button>
           ))}
         </div>
+      )}
+
+      {destination === null && (
+        <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+          הזיני כתובת יעד כדי לראות חניות פנויות בסביבה.
+        </div>
+      )}
+
+      {loading && <div style={{ padding: '24px', textAlign: 'center' }}>מחפש חניות...</div>}
+      {error !== null && <div style={{ padding: '24px', color: 'red', textAlign: 'center' }}>{error}</div>}
+
+      {destination !== null && !loading && error === null && results.length === 0 && (
+        <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+          לא נמצאו חניות פנויות באזור הזה.
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {results.map((spot) => (
+          <ParkingCard
+            key={spot.spotId}
+            id={spot.spotId}
+            title={`${spot.address}, ${spot.city}`}
+            distance={formatDistance(spot.distanceKm)}
+            walkTime={formatWalkTime(spot.distanceKm)}
+            pricePerMin={(spot.effectivePricePerHour / 60).toFixed(2)}
+          />
+        ))}
       </div>
     </div>
   );
