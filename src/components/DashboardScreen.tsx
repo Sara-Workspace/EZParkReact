@@ -1,23 +1,77 @@
-
+import { useEffect, useState } from 'react';
+import { apiFetch } from '../api/api';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchParkings } from '../store/parkings/parkingsThunks';
+import type { Reservation } from '../types';
+import { parseServerUtc } from '../utils/time';
 import RentalRow from './RentalRow';
 import StatCard from './StatCard';
 
-interface Rental {
-  id: number;
-  plateNumber: string;
-  timeAgo: string;
-  durationMin: number;
-  type: string;
-  totalEarnings: string;
+function formatTimeAgo(isoDate: string): string {
+  const diffMs = Date.now() - parseServerUtc(isoDate);
+  const diffMin = Math.max(1, Math.floor(diffMs / 60000));
+  if (diffMin < 60) return `לפני ${diffMin} דקות`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return diffHours === 1 ? 'לפני שעה' : `לפני ${diffHours} שעות`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return 'אתמול';
+  return `לפני ${diffDays} ימים`;
 }
 
-const rentals: Rental[] = [
-  { id: 1, plateNumber: '12-345-67', timeAgo: 'לפני שעתיים', durationMin: 90, type: 'השכרה רגילה', totalEarnings: '36.00' },
-  { id: 2, plateNumber: '89-012-34', timeAgo: 'אתמול', durationMin: 120, type: 'השכרה רגילה', totalEarnings: '48.00' },
-  { id: 3, plateNumber: '55-678-90', timeAgo: 'לפני 3 ימים', durationMin: 45, type: 'השכרה קצרה', totalEarnings: '18.90' },
-];
-
 function DashboardScreen() {
+  const dispatch = useAppDispatch();
+  const { items: spots } = useAppSelector((state) => state.parkings);
+  const user = useAppSelector((state) => state.user);
+
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchParkings());
+
+    const loadReservations = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const endpoint = user.role === 'Admin' ? '/Reservations' : '/Reservations/my';
+        const data = await apiFetch<Reservation[]>(endpoint);
+        setReservations(data);
+      } catch {
+        setError('לא ניתן היה לטעון את נתוני ההשכרות מהשרת.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReservations();
+  }, [dispatch, user.role]);
+
+  const spotById = new Map(spots.map((s) => [s.spotId, s]));
+
+  // חישוב נתונים אמיתיים לחודש הנוכחי
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const monthlyPoints = reservations
+    .filter((r) => {
+      if (r.status !== 'Completed') return false;
+      const d = new Date(parseServerUtc(r.startTime));
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    })
+    .reduce((sum, r) => sum + Number(r.totalPrice || 0), 0);
+
+  const activeCount = reservations.filter((r) => r.status === 'Active').length;
+
+  const recentReservations = [...reservations]
+    .sort((a, b) => b.reservationID - a.reservationID)
+    .slice(0, 10);
+
+  if (loading && reservations.length === 0) {
+    return <div style={{ padding: '24px', textAlign: 'center' }}>טוען נתוני לוח בקרה...</div>;
+  }
+
   return (
     <div
       style={{
@@ -28,9 +82,33 @@ function DashboardScreen() {
         gap: '24px',
       }}
     >
+      {error !== null && (
+        <div
+          style={{
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#dc2626',
+            padding: '12px',
+            borderRadius: '12px',
+            fontSize: '13px',
+            fontWeight: 700,
+          }}
+        >
+          {error}
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <StatCard title="הכנסות החודש" value="₪612.40" valueColor="#4f46e5" />
-        <StatCard title="השכרות פעילות" value="24 השכרות" valueColor="#059669" />
+        <StatCard
+          title={user.role === 'Admin' ? 'מחזור נקודות החודש' : 'הנקודות שלי החודש'}
+          value={`${monthlyPoints.toFixed(1)} נק׳`}
+          valueColor="#4f46e5"
+        />
+        <StatCard
+          title="השכרות פעילות כרגע"
+          value={`${activeCount} השכרות`}
+          valueColor="#059669"
+        />
       </div>
 
       <div
@@ -44,19 +122,40 @@ function DashboardScreen() {
           gap: '12px',
         }}
       >
-        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
-          השכרות אחרונות במערכת
+        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+          {user.role === 'Admin' ? 'השכרות אחרונות במערכת' : 'ההשכרות האחרונות שלי'} ({reservations.length})
         </h4>
-        {rentals.map((rental) => (
-          <RentalRow
-            key={rental.id}
-            plateNumber={rental.plateNumber}
-            timeAgo={rental.timeAgo}
-            durationMin={rental.durationMin}
-            type={rental.type}
-            totalEarnings={rental.totalEarnings}
-          />
-        ))}
+
+        {recentReservations.length === 0 ? (
+          <p style={{ fontSize: '13px', color: '#64748b', margin: '8px 0 0 0' }}>
+            עדיין אין השכרות להצגה.
+          </p>
+        ) : (
+          recentReservations.map((res) => {
+            const spot = spotById.get(res.spotID);
+            const title = spot ? `${spot.address}, ${spot.city}` : `חניה #${res.spotID}`;
+            const endMs =
+              res.status === 'Active' ? Date.now() : parseServerUtc(res.endTime);
+            const durationMin = Math.max(
+              1,
+              Math.round((endMs - parseServerUtc(res.startTime)) / 60000)
+            );
+            const isActive = res.status === 'Active';
+
+            return (
+              <RentalRow
+                key={res.reservationID}
+                plateNumber={title}
+                timeAgo={formatTimeAgo(res.startTime)}
+                durationMin={durationMin}
+                type={spot?.evCharger ? 'כולל טעינה ⚡' : 'חניה רגילה'}
+                totalEarnings={Number(res.totalPrice || 0).toFixed(1)}
+                statusLabel={isActive ? 'פעילה כעת' : 'הושלמה'}
+                isActive={isActive}
+              />
+            );
+          })
+        )}
       </div>
     </div>
   );

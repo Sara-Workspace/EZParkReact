@@ -1,14 +1,22 @@
-
-
 interface RentalRowProps {
   plateNumber: string;
   timeAgo: string;
   durationMin: number;
   type: string;
   totalEarnings: string;
+  statusLabel?: string;
+  isActive?: boolean;
 }
 
-function RentalRow({ plateNumber, timeAgo, durationMin, type, totalEarnings }: RentalRowProps) {
+function RentalRow({
+  plateNumber,
+  timeAgo,
+  durationMin,
+  type,
+  totalEarnings,
+  statusLabel = 'הושלם בהצלחה',
+  isActive = false,
+}: RentalRowProps) {
   return (
     <div
       style={{
@@ -27,32 +35,41 @@ function RentalRow({ plateNumber, timeAgo, durationMin, type, totalEarnings }: R
           style={{
             width: '36px',
             height: '36px',
-            background: '#ecfdf5',
-            color: '#059669',
+            background: isActive ? '#fef3c7' : '#ecfdf5',
+            color: isActive ? '#d97706' : '#059669',
             borderRadius: '12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '12px',
+            fontSize: '14px',
             fontWeight: 700,
           }}
         >
           🚗
         </div>
         <div>
-          <h5 style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>
-            לוחית רישוי: {plateNumber}
+          <h5 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+            {plateNumber}
           </h5>
-          <p style={{ fontSize: '10px', color: '#64748b' }}>
-            {timeAgo} • {durationMin} דקות {type}
+          <p style={{ fontSize: '11px', color: '#64748b', margin: '3px 0 0 0' }}>
+            {timeAgo} • {durationMin} דקות • {type}
           </p>
         </div>
       </div>
       <div style={{ textAlign: 'left' }}>
-        <span style={{ display: 'block', fontSize: '12px', fontWeight: 900, color: '#059669' }}>
-          +₪{totalEarnings}
+        <span
+          style={{
+            display: 'block',
+            fontSize: '13px',
+            fontWeight: 900,
+            color: isActive ? '#d97706' : '#059669',
+          }}
+        >
+          {totalEarnings} נק׳
         </span>
-        <span style={{ display: 'block', fontSize: '9px', color: '#94a3b8' }}>הושלם בהצלחה</span>
+        <span style={{ display: 'block', fontSize: '10px', color: '#94a3b8' }}>
+          {statusLabel}
+        </span>
       </div>
     </div>
   );
