@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store/hooks';
 import { addParking } from '../store/parkings/parkingsThunks';
 import Button from './Button';
+import FieldMessage from './FieldMessage';
+import ErrorBox from './ErrorBox';
+import { getErrorMessage } from '../api/api';
+import { validateCoordinates, validateImage, validatePrice, validateText } from '../utils/validation';
 
 function AddParkingScreen() {
   const navigate = useNavigate();
@@ -20,6 +24,8 @@ function AddParkingScreen() {
   // מצבי שליחת הבקשה
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  // הופך ל-true אחרי הניסיון הראשון לשלוח. רק מאז מסמנים שדות באדום
+  const [showErrors, setShowErrors] = useState<boolean>(false);
 
   // חישוב נגזר בזמן רינדור: תצוגה מקדימה של המחיר לדקה
   const numericHourlyPrice = Number(basePricePerHour);
@@ -33,9 +39,25 @@ function AddParkingScreen() {
     setImageFile(selectedFile);
   };
 
+  // ===== בדיקת השדות (אותם כללים כמו בשרת) =====
+  const addressError = validateText(address, 'כתובת', 2, 200);
+  const cityError = validateText(city, 'עיר', 2, 100);
+  const priceError = validatePrice(basePricePerHour);
+  const coordinatesError = validateCoordinates(latitude, longitude);
+  const imageError = validateImage(imageFile, false);
+
+  const hasErrors = [addressError, cityError, priceError, coordinatesError, imageError]
+    .some((fieldError) => fieldError !== null);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (address.trim() === '' || city.trim() === '') return;
+
+    // יש שדה לא תקין: מסמנים באדום ולא שולחים לשרת
+    setShowErrors(true);
+    if (hasErrors) {
+      setError('יש לתקן את השדות המסומנים באדום.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -43,18 +65,14 @@ function AddParkingScreen() {
     try {
       // בניית FormData בהתאמה ל-[FromForm] ParkingSpotCreateDTO
       const formData = new FormData();
-      formData.append('Address', address);
-      formData.append('City', city);
+      formData.append('Address', address.trim());
+      formData.append('City', city.trim());
       formData.append('BasePricePerHour', basePricePerHour);
-            // מיקום אופציונלי: אם השדות ריקים, השרת מאתר אותו לפי הכתובת
+      // מיקום אופציונלי: אם השדות ריקים, השרת מאתר אותו לפי הכתובת
       if (latitude.trim() !== '' && longitude.trim() !== '') {
         formData.append('Latitude', latitude);
         formData.append('Longitude', longitude);
       }
-     if (numericHourlyPrice > 50) {
-      setError('המחיר המקסימלי הוא 50 נקודות לשעה.');
-      return;
-    }
       formData.append('EvCharger', String(evCharger));
 
       if (imageFile !== null) {
@@ -64,10 +82,11 @@ function AddParkingScreen() {
       // unwrap() גורם ל-dispatch לזרוק שגיאה אם הבקשה נכשלה, כדי שה-catch יעבוד
       await dispatch(addParking(formData)).unwrap();
 
-      // מעבר ללוח הבקרה לאחר פרסום מוצלח
-     navigate('/my-spots');
-    } catch {
-      setError('שמירת החניה נכשלה. ודא שכל הערכים תקינים ושאתה מחובר כבעל חניה.');
+      // מעבר ל"החניות שלי": שם בעל החניה מוסיף ימים ושעות (בלי שעות החניה לא מופיעה לנהגים)
+      navigate('/my-spots');
+    } catch (err) {
+      // ההודעה הברורה מהשרת, למשל: "לא הצלחנו למצוא את הכתובת. בדקו שהיא נכונה..."
+      setError(getErrorMessage(err, 'שמירת החניה נכשלה. נסי שוב.'));
     } finally {
       setLoading(false);
     }
@@ -93,6 +112,7 @@ function AddParkingScreen() {
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate // במקום הבועות של הדפדפן, מופיעות ההודעות שלנו מתחת לשדות
       style={{
         maxWidth: '680px',
         margin: '0 auto',
@@ -127,9 +147,10 @@ function AddParkingScreen() {
               required
               value={address}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
-              placeholder="רח' דיזנגוף 120"
+              placeholder="דיזנגוף 120"
               style={inputStyle}
             />
+            <FieldMessage error={addressError} show={showErrors} hint="שם הרחוב ומספר הבית, בלי המילה 'רחוב'" />
           </div>
 
           <div>
@@ -145,6 +166,7 @@ function AddParkingScreen() {
               placeholder="תל אביב-יפו"
               style={inputStyle}
             />
+            <FieldMessage error={cityError} show={showErrors} hint="השם הרשמי, למשל מעלות-תרשיחא" />
           </div>
         </div>
 
@@ -163,10 +185,14 @@ function AddParkingScreen() {
     onChange={(e: ChangeEvent<HTMLInputElement>) => setBasePricePerHour(e.target.value)}
     style={inputStyle}
   />
-  <span style={{ display: 'block', fontSize: '11px', color: '#5a6b82', marginTop: '4px' }}>
-    מחיר מקסימלי: <strong>50 נקודות לשעה</strong> • תעריף מחושב לנהג:{' '}
-    <strong>{pricePerMinutePreview} נק׳ לדקה</strong>
-  </span>
+  {showErrors && priceError !== null ? (
+    <FieldMessage error={priceError} show={true} />
+  ) : (
+    <span style={{ display: 'block', fontSize: '11px', color: '#5a6b82', marginTop: '4px' }}>
+      מחיר מקסימלי: <strong>50 נקודות לשעה</strong> • תעריף מחושב לנהג:{' '}
+      <strong>{pricePerMinutePreview} נק׳ לדקה</strong>
+    </span>
+  )}
 </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>
@@ -197,6 +223,12 @@ function AddParkingScreen() {
             />
           </div>
         </div>
+        {/* הסבר על המיקום, או שגיאה אם מילאו רק אחד מהשניים */}
+        <FieldMessage
+          error={coordinatesError}
+          show={showErrors}
+          hint="לא חובה! אם משאירים ריק, המערכת מוצאת את המיקום לבד לפי הכתובת. ממלאים רק אם הכתובת לא נמצאת."
+        />
 
         <div>
           <label htmlFor="spot-image" style={labelStyle}>
@@ -209,6 +241,8 @@ function AddParkingScreen() {
             onChange={handleFileChange}
             style={inputStyle}
           />
+          {/* התמונה נבדקת מיד כשבוחרים אותה (סוג וגודל) */}
+          <FieldMessage error={imageError} show={true} hint="jpg / png / webp, עד 5MB" />
         </div>
 
         <label
@@ -232,21 +266,7 @@ function AddParkingScreen() {
           קיימת עמדת טעינה לרכב חשמלי ⚡
         </label>
 
-        {error !== null && (
-          <div
-            style={{
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              color: '#dc2626',
-              padding: '10px 12px',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: 700,
-            }}
-          >
-            {error}
-          </div>
-        )}
+        <ErrorBox message={error} />
 
         <Button
           label={loading ? 'שומר חניה בשרת...' : 'פרסם חניה להשכרה כעת 🚗'}

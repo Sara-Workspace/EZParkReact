@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage, getErrorStatus } from '../api/api';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { clearHold, setReservation } from '../store/session/sessionSlice';
 import { excludeSpot } from '../store/search/searchSlice';
@@ -62,9 +62,7 @@ function NavigationScreen() {
       dispatch(setReservation(reservation));
       navigate('/parking-session');
     } catch (err) {
-      const message = err instanceof Error ? err.message : '';
-
-      if (message.includes('409')) {
+      if (getErrorStatus(err) === 409) {
         // החניה שמורה כעת לנהגת אחרת (למשל אחרי שהשרת הופעל מחדש)
         dispatch(excludeSpot(spot.spotId));
         dispatch(clearHold());
@@ -72,12 +70,9 @@ function NavigationScreen() {
         return;
       }
 
-      if (message.includes('400')) {
-        setError('לא ניתן להתחיל חניה. ייתכן שיש לך כבר חניה פעילה, ואז צריך לסיים אותה קודם (הקישור בתפריט).');
-        return;
-      }
-
-      setError('לא הצלחנו להתחיל את החניה. ייתכן שהשמירה פגה.');
+      // כל השאר: ההודעה הברורה מהשרת, למשל
+      // "יש לך כבר חניה פעילה. יש לסיים אותה לפני תחילת חניה חדשה."
+      setError(getErrorMessage(err, 'לא הצלחנו להתחיל את החניה. ייתכן שהשמירה פגה.'));
     } finally {
       setBusy(false);
     }

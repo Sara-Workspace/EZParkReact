@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage, getErrorStatus } from '../api/api';
 import { useAppDispatch } from '../store/hooks';
 import { setHold } from '../store/session/sessionSlice';
 import { excludeSpot } from '../store/search/searchSlice';
@@ -44,8 +44,8 @@ function DetailsScreen() {
         setSpot(data);
         setImgFailed(false);
         document.title = `פארקי - ${data.address}, ${data.city}`;
-      } catch {
-        if (!cancelled) setError('החניה לא נמצאה בשרת');
+      } catch (err) {
+        if (!cancelled) setError(getErrorMessage(err, 'החניה לא נמצאה בשרת'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -71,14 +71,14 @@ function DetailsScreen() {
       dispatch(setHold({ spot, heldUntilMs: Date.now() + hold.expiresInSeconds * 1000 }));
       navigate('/navigation');
     } catch (err) {
-      const message = err instanceof Error ? err.message : '';
-      if (message.includes('409')) {
+      if (getErrorStatus(err) === 409) {
+        // 409 = החניה שמורה לנהג אחר: מורידים אותה מהחיפוש
         dispatch(excludeSpot(spot.spotId));
         setActionError('החניה נתפסה על ידי נהג אחר. חזרי לרשימה ובחרי חניה אחרת.');
-      } else if (message.includes('400')) {
-        setActionError('חסר מספר רישוי. חזרי למסך הרישוי והזיני מספר.');
       } else {
-        setActionError('לא הצלחנו לשמור את החניה. נסי שוב.');
+        // כל השאר: ההודעה הברורה מהשרת, למשל "יש להזין מספר רישוי רכב לפני תפיסת חניה."
+        // או "החניה לא זמינה בשעה הזאת לפי השעות שבעל החניה קבע."
+        setActionError(getErrorMessage(err, 'לא הצלחנו לשמור את החניה. נסי שוב.'));
       }
     } finally {
       setReserving(false);

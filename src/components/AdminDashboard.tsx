@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage } from '../api/api';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchParkings, updateParking, deleteParking } from '../store/parkings/parkingsThunks';
 import type { ParkingSpot } from '../store/parkings/parkingsState';
@@ -61,8 +61,8 @@ function AdminDashboard() {
         setDrivers(driversData);
         setOwners(ownersData);
         setReservations(reservationsData);
-      } catch {
-        setUsersError('שגיאה בטעינת נתוני הניהול. ודא שהנך מחובר כמנהל (Admin).');
+      } catch (err) {
+        setUsersError(getErrorMessage(err, 'שגיאה בטעינת נתוני הניהול. ודאי שאת מחוברת כמנהלת (Admin).'));
       } finally {
         setUsersLoading(false);
       }

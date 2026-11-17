@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage } from '../api/api';
+import { validateImage } from '../utils/validation';
 import type { SpotCheckResult } from '../types';
 
 // הוק משלנו: כל הקריאות לשרת של "בדיקת חניה" (api/SpotChecks) נמצאות כאן.
@@ -21,6 +22,12 @@ export function useSpotCheck(spotId: number, onChecked: () => void) {
 
   // 🏠 בעל חניה: שולח תמונה, והשרת מיד בודק אותה (שלב אחד)
   async function ownerCheck(image: File) {
+    // בודקים את התמונה (סוג וגודל) עוד לפני ששולחים
+    const imageError = validateImage(image, true);
+    if (imageError !== null) {
+      setError(imageError);
+      return;
+    }
     setLoading(true);
     setError(null);
     setMessage(null);
@@ -31,8 +38,9 @@ export function useSpotCheck(spotId: number, onChecked: () => void) {
       });
       setResult(data);
       onChecked();
-    } catch {
-      setError('הבדיקה נכשלה. ודאי שבתמונה רואים את לוחית הרישוי.');
+    } catch (err) {
+      // ההודעה מהשרת, למשל "לא הצלחנו לזהות לוחית רישוי בתמונה..."
+      setError(getErrorMessage(err, 'הבדיקה נכשלה. ודאי שבתמונה רואים את לוחית הרישוי.'));
     } finally {
       setLoading(false); // קורה תמיד, גם אחרי הצלחה וגם אחרי שגיאה
     }
@@ -40,6 +48,11 @@ export function useSpotCheck(spotId: number, onChecked: () => void) {
 
   // 👑📷 מנהל, שלב 1: "המצלמה מצלמת". רק שומר את התמונה בשרת, בלי בדיקה ובלי קנס
   async function uploadCamera(image: File) {
+    const imageError = validateImage(image, true);
+    if (imageError !== null) {
+      setError(imageError);
+      return;
+    }
     setLoading(true);
     setError(null);
     setResult(null);
@@ -49,8 +62,9 @@ export function useSpotCheck(spotId: number, onChecked: () => void) {
         body: createImageForm(image),
       });
       setMessage('תמונת המצלמה נשמרה 📷');
-    } catch {
-      setError('העלאת התמונה נכשלה.');
+    } catch (err) {
+      // ההודעה מהשרת, למשל "לא הצלחנו לזהות לוחית רישוי בתמונה..."
+      setError(getErrorMessage(err, 'העלאת התמונה נכשלה.'));
     } finally {
       setLoading(false);
     }
@@ -67,8 +81,9 @@ export function useSpotCheck(spotId: number, onChecked: () => void) {
       });
       setResult(data);
       onChecked();
-    } catch {
-      setError('הבדיקה נכשלה. ודאי שהועלתה תמונת מצלמה לחניה ושרואים בה לוחית רישוי.');
+    } catch (err) {
+      // ההודעה מהשרת, למשל "לא הצלחנו לזהות לוחית רישוי בתמונה..."
+      setError(getErrorMessage(err, 'הבדיקה נכשלה. ודאי שהועלתה תמונת מצלמה לחניה ושרואים בה לוחית רישוי.'));
     } finally {
       setLoading(false);
     }

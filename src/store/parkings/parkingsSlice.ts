@@ -17,9 +17,10 @@ const parkingsSlice = createSlice({
         state.loading = false;
         state.items = action.payload;
       })
-      .addCase(fetchParkings.rejected, (state) => {
+      // action.error.message = ההודעה הברורה מ-apiFetch (למשל "אין חיבור לשרת...")
+      .addCase(fetchParkings.rejected, (state, action) => {
         state.loading = false;
-        state.error = 'נכשל בטעינת רשימת החניות מהשרת';
+        state.error = action.error.message ?? 'נכשל בטעינת רשימת החניות מהשרת';
       })
       // ---------- GET (החניות שלי) ----------
       .addCase(fetchMyParkings.pending, (state) => {
@@ -30,9 +31,9 @@ const parkingsSlice = createSlice({
         state.loading = false;
         state.items = action.payload;
       })
-      .addCase(fetchMyParkings.rejected, (state) => {
+      .addCase(fetchMyParkings.rejected, (state, action) => {
         state.loading = false;
-        state.error = 'נכשל בטעינת החניות שלך מהשרת';
+        state.error = action.error.message ?? 'נכשל בטעינת החניות שלך מהשרת';
       })
       // ---------- POST ----------
       .addCase(addParking.fulfilled, (state, action) => {

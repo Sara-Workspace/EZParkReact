@@ -1,7 +1,10 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../api/api'; // התאימי לנתיב המדויק של api.ts אצלך (כמו ב-AdminDashboard)
+import { apiFetch, getErrorMessage } from '../api/api'; // התאימי לנתיב המדויק של api.ts אצלך (כמו ב-AdminDashboard)
 import Button from './Button';
+import FieldMessage from './FieldMessage';
+import ErrorBox from './ErrorBox';
+import { validateEmail, validatePassword, validatePhone, validateText } from '../utils/validation';
 import { useAppDispatch } from '../store/hooks';
 import { setUser } from '../store/user/userSlice';
 
@@ -37,11 +40,28 @@ function LoginScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  // הופך ל-true אחרי הניסיון הראשון לשלוח. רק מאז מסמנים שדות באדום (לא לפני שהמשתמש התחיל)
+  const [showErrors, setShowErrors] = useState<boolean>(false);
+
+  const isRegister = mode === 'register';
+
+  // ===== בדיקת השדות (מחושב מחדש בכל הקלדה) =====
+  // בהתחברות בודקים רק אימייל ושיש סיסמה. בהרשמה - את כל השדות, באותם כללים כמו בשרת
+  const emailError = validateEmail(email);
+  const passwordError = isRegister ? validatePassword(password) : password === '' ? 'יש למלא סיסמה.' : null;
+  const firstNameError = isRegister ? validateText(firstName, 'שם פרטי', 2, 50) : null;
+  const lastNameError = isRegister ? validateText(lastName, 'שם משפחה', 2, 50) : null;
+  const phoneError = isRegister ? validatePhone(phone) : null;
+  const bankError = isRegister && registerRole === 'Owner' ? validateText(bankDetails, 'פרטי חשבון בנק', 5, 100) : null;
+
+  const hasErrors = [emailError, passwordError, firstNameError, lastNameError, phoneError, bankError]
+    .some((fieldError) => fieldError !== null);
 
   const handleModeSwitch = (newMode: 'login' | 'register') => {
     setMode(newMode);
     setError(null);
     setSuccessMsg(null);
+    setShowErrors(false);
   };
 
   const saveAuthAndNavigate = (data: AuthResponse, fallbackEmail: string) => {
@@ -85,11 +105,14 @@ function LoginScreen() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (email.trim() === '' || password.trim() === '') return;
-    if (mode !== 'login' && password.length < 8) {
-      setError('הסיסמה חייבת להכיל לפחות 8 תווים.');
+
+    // יש שדה לא תקין: מסמנים את כל השדות הבעייתיים באדום ולא שולחים לשרת
+    setShowErrors(true);
+    if (hasErrors) {
+      setError('יש לתקן את השדות המסומנים באדום.');
       return;
     }
+
     setLoading(true);
     setError(null);
     setSuccessMsg(null);
@@ -98,7 +121,7 @@ function LoginScreen() {
       if (mode === 'login') {
         const data = await apiFetch<AuthResponse>('/Auth/login', {
           method: 'POST',
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email: email.trim(), password }),
         });
         saveAuthAndNavigate(data, email);
       } else {
@@ -133,11 +156,14 @@ function LoginScreen() {
           setSuccessMsg('המשתמש נוצר בהצלחה! כעת ניתן להתחבר עם האימייל והסיסמה.');
         }
       }
-    } catch {
+    } catch (err) {
+      // ההודעה מהשרת, למשל: "דוא"ל או סיסמה שגויים" / "כתובת המייל כבר רשומה במערכת."
+      // או "אין חיבור לשרת" אם השרת כבוי
       setError(
-        mode === 'login'
-          ? 'אימייל או סיסמה שגויים'
-          : 'יצירת המשתמש נכשלה. ודא שהאימייל לא רשום כבר במערכת ושכל הפרטים תקינים.'
+        getErrorMessage(
+          err,
+          mode === 'login' ? 'ההתחברות נכשלה. נסי שוב.' : 'יצירת המשתמש נכשלה. נסי שוב.'
+        )
       );
     } finally {
       setLoading(false);
@@ -242,7 +268,8 @@ function LoginScreen() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {/* noValidate: מבטל את הבועות האוטומטיות של הדפדפן, כדי שיופיעו ההודעות שלנו מתחת לשדות */}
+        <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {mode === 'register' && (
             <>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -291,6 +318,7 @@ function LoginScreen() {
                     placeholder="שרה"
                     style={inputStyle}
                   />
+                  <FieldMessage error={firstNameError} show={showErrors} />
                 </div>
                 <div>
                   <label htmlFor="reg-last" style={labelStyle}>שם משפחה</label>
@@ -304,6 +332,7 @@ function LoginScreen() {
                     placeholder="כהן"
                     style={inputStyle}
                   />
+                  <FieldMessage error={lastNameError} show={showErrors} />
                 </div>
               </div>
 
@@ -319,6 +348,12 @@ function LoginScreen() {
                   placeholder="050-0000000"
                   style={inputStyle}
                 />
+                {/* בזמן ההקלדה: כמה ספרות חסרות (באפור). אחרי ניסיון שליחה: באדום אם לא תקין */}
+                <FieldMessage
+                  error={phoneError}
+                  show={showErrors}
+                  hint={phone === '' ? 'מספר נייד, 10 ספרות' : phoneError ?? '✓ מספר תקין'}
+                />
               </div>
 
               {registerRole === 'Owner' && (
@@ -333,6 +368,7 @@ function LoginScreen() {
                     placeholder="בנק הפועלים, סניף 123, חשבון 456789"
                     style={inputStyle}
                   />
+                  <FieldMessage error={bankError} show={showErrors} />
                 </div>
               )}
             </>
@@ -350,6 +386,7 @@ function LoginScreen() {
               placeholder="name@example.com"
               style={inputStyle}
             />
+            <FieldMessage error={emailError} show={showErrors} />
           </div>
 
           <div>
@@ -364,28 +401,15 @@ function LoginScreen() {
               placeholder="••••••••"
               style={inputStyle}
             />
-             {mode !== 'login' && (
-              <span style={{ display: 'block', fontSize: '11px', color: '#5a6b82', marginTop: '4px' }}>
-                הסיסמה חייבת להכיל לפחות 8 תווים
-              </span>
-            )}
+             {/* בהרשמה: בזמן ההקלדה מראים כמה תווים חסרים */}
+            <FieldMessage
+              error={passwordError}
+              show={showErrors}
+              hint={isRegister ? (password === '' ? 'לפחות 8 תווים' : passwordError ?? '✓ סיסמה באורך תקין') : undefined}
+            />
           </div>
 
-          {error !== null && (
-            <div
-              style={{
-                background: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#dc2626',
-                padding: '10px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: 700,
-              }}
-            >
-              {error}
-            </div>
-          )}
+          <ErrorBox message={error} />
 
           {successMsg !== null && (
             <div

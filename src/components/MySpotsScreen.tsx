@@ -7,6 +7,8 @@ import SpotReviews from './SpotReviews';
 import InfoCard from './InfoCard';
 import Button from './Button';
 import OwnerSpotCheck from './OwnerSpotCheck';
+import SpotHoursEditor from './SpotHoursEditor';
+import { getErrorMessage } from '../api/api';
 
 const MAX_HOURLY_PRICE = 50;
 
@@ -36,6 +38,13 @@ function MySpotsScreen() {
   useEffect(() => {
     dispatch(fetchMyParkings());
   }, [dispatch]);
+
+  // הודעת הצלחה נעלמת לבד אחרי 4 שניות (הודעת שגיאה נשארת עד הפעולה הבאה)
+  useEffect(() => {
+    if (feedback === null || feedback.type !== 'ok') return;
+    const timer = setTimeout(() => setFeedback(null), 4000);
+    return () => clearTimeout(timer); // אם הגיעה הודעה חדשה לפני הזמן - מבטלים את הטיימר הישן
+  }, [feedback]);
 
   const mySpots = items;
   const selectedSpot = mySpots.find((s) => s.spotId === selectedSpotId) ?? null;
@@ -74,11 +83,11 @@ function MySpotsScreen() {
         type: 'ok',
         text: !spot.isActive ? 'החניה סומנה כזמינה להזמנות ✅' : 'החניה סומנה כלא זמינה ⏸️',
       });
-    } catch {
+    } catch (err) {
       setFeedback({
         id: spot.spotId,
         type: 'err',
-        text: 'עדכון הזמינות נכשל. ודאי שיש לך הרשאת בעלת חניה.',
+        text: getErrorMessage(err, 'עדכון הזמינות נכשל. ודאי שיש לך הרשאת בעלת חניה.'),
       });
     } finally {
       setSavingId(null);
@@ -130,11 +139,11 @@ function MySpotsScreen() {
         type: 'ok',
         text: 'פרטי החניה עודכנו בהצלחה ✅',
       });
-    } catch {
+    } catch (err) {
       setFeedback({
         id: spot.spotId,
         type: 'err',
-        text: 'שמירת פרטי החניה נכשלה. נסי שוב.',
+        text: getErrorMessage(err, 'שמירת פרטי החניה נכשלה. נסי שוב.'),
       });
     } finally {
       setSavingId(null);
@@ -272,7 +281,7 @@ function MySpotsScreen() {
                 </div>
 
                 {spotFeedback !== null && (
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: spotFeedback.type === 'ok' ? '#059669' : '#dc2626' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: spotFeedback.type === 'ok' ? '#059669' : '#dc2626', whiteSpace: 'pre-line' }}>
                     {spotFeedback.text}
                   </div>
                 )}
@@ -424,10 +433,13 @@ function MySpotsScreen() {
                 )}
 
                 {spotFeedback !== null && (
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: spotFeedback.type === 'ok' ? '#059669' : '#dc2626' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: spotFeedback.type === 'ok' ? '#059669' : '#dc2626', whiteSpace: 'pre-line' }}>
                     {spotFeedback.text}
                   </div>
                 )}
+
+                {/* 🕐 ימים ושעות שהחניה מושכרת: החניה מופיעה לנהגים רק בזמנים האלה */}
+                <SpotHoursEditor spotId={spot.spotId} />
 
                 <OwnerSpotCheck spotId={spot.spotId} onChecked={() => dispatch(fetchMyParkings())} />
                 <SpotReviews spotId={spot.spotId} />
