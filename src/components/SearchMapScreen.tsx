@@ -9,6 +9,7 @@ import type { ParkingSpot } from '../types';
 import ParkingCard from './ParkingCard';
 import SpotsMap from './SpotsMap';
 import Button from './Button';
+import { useMyLocation, type MyLocation } from '../hooks/useMyLocation';
 
 type SortBy = 'smart' | 'distance' | 'price';
 
@@ -46,6 +47,10 @@ function SearchMapScreen() {
   const [geoLoading, setGeoLoading] = useState<boolean>(false);
   const [geoError, setGeoError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<Record<string, { latitude: number; longitude: number }>>({});
+
+  // 📍 "המיקום שלי": ההוק שואל את הדפדפן איפה המשתמש נמצא עכשיו.
+  // חייב להיות כאן למעלה, לפני ה-return-ים המוקדמים (כלל של הוקים: תמיד באותו סדר)
+  const { locating, locationError, findMyLocation } = useMyLocation();
 
   // חיפוש מחדש בכל שינוי ביעד, ברשימת ההחרגות או במיון
   useEffect(() => {
@@ -108,12 +113,31 @@ function SearchMapScreen() {
     );
   }
 
+  // 📍 לחיצה על "המיקום שלי": כשהמיקום נמצא, הוא הופך ליעד החיפוש,
+  // בדיוק כמו כתובת שהוקלדה. ה-useEffect למעלה רואה שהיעד השתנה ומחפש חניות סביבו
+  const handleMyLocation = () => {
+    setGeoError(null);
+    findMyLocation((location: MyLocation) => {
+      setAddressInput('המיקום שלי 📍');
+      dispatch(
+        setDestination({
+          address: 'המיקום שלי',
+          latitude: location.latitude,
+          longitude: location.longitude,
+        })
+      );
+    });
+  };
+
   const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (addressInput.trim() === '') {
       setGeoError('יש להזין כתובת יעד');
       return;
     }
+
+    // כבר חיפשנו לפי "המיקום שלי" - אין כתובת אמיתית לחפש, אז לא עושים כלום
+    if (addressInput === 'המיקום שלי 📍') return;
 
     const known = suggestions[addressInput.trim()];
     if (known !== undefined) {
@@ -177,11 +201,35 @@ function SearchMapScreen() {
             <option key={suggestion} value={suggestion} />
           ))}
         </datalist>
-        <Button label={geoLoading ? 'מחפש כתובת...' : 'חפשי חניה'} background="#0a6cf0" color="white" />
+<Button label={geoLoading ? 'מחפש כתובת...' : 'חפשי חניה'} background="#0a6cf0" color="white" />
+        {/* 📍 כפתור "המיקום שלי". type="button" כדי שלא ישלח את הטופס (לא יחפש לפי הכתובת שבתיבה) */}
+        <button
+          type="button"
+          onClick={handleMyLocation}
+          disabled={locating}
+          style={{
+            padding: '10px 14px',
+            borderRadius: '12px',
+            border: '1px solid #0a6cf0',
+            background: 'white',
+            color: '#0a6cf0',
+            fontWeight: 700,
+            cursor: locating ? 'wait' : 'pointer',
+            whiteSpace: 'nowrap',
+            fontFamily: 'inherit',
+          }}
+        >
+          {locating ? 'מאתר מיקום...' : '📍 המיקום שלי'}
+        </button>
       </form>
 
       {geoError !== null && (
         <div style={{ color: '#dc2626', fontSize: '13px', fontWeight: 700 }}>{geoError}</div>
+      )}
+
+      {/* שגיאה של "המיקום שלי" (למשל: המשתמש לא אישר גישה למיקום) */}
+      {locationError !== null && (
+        <div style={{ color: '#dc2626', fontSize: '13px', fontWeight: 700 }}>{locationError}</div>
       )}
 
       {destination !== null && (
