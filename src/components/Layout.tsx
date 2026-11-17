@@ -91,9 +91,18 @@ function Layout() {
           )}
 
           {token !== null && (
-            <span style={{ fontSize: '13px', color: '#cbd5e1' }}>
-              👤 {user.firstName} • {user.points} נקודות
-            </span>
+            <NavLink
+              to="/profile"
+              style={({ isActive }) => ({
+                fontSize: '13px',
+                color: isActive ? '#38bdf8' : '#cbd5e1',
+                textDecoration: 'none',
+                fontWeight: 700,
+              })}
+              title="עדכון פרטי פרופיל"
+            >
+              👤 {user.firstName} ({user.points} נק׳)
+            </NavLink>
           )}
 
           {token !== null ? (

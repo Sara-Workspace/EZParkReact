@@ -14,6 +14,7 @@ import AdminRoute from './components/AdminRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './components/NotFound';
 import ParkingSessionScreen from './components/ParkingSessionScreen';
+import ProfileScreen from './components/ProfileScreen';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardScreen />} />
         <Route path="/navigation" element={<NavigationScreen />} />
         <Route path="/parking-session" element={<ParkingSessionScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
         <Route
           path="/admin"
           element={

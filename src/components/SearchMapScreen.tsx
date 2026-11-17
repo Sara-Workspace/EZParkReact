@@ -7,6 +7,7 @@ import { Navigate } from 'react-router-dom';
 import { apiFetch } from '../api/api';
 import type { ParkingSpot } from '../types';
 import ParkingCard from './ParkingCard';
+import SpotsMap from './SpotsMap';
 import Button from './Button';
 
 type SortBy = 'smart' | 'distance' | 'price';
@@ -38,14 +39,12 @@ function SearchMapScreen() {
   const dispatch = useAppDispatch();
   const points = useAppSelector((state) => state.user.points);
   const { destination, excludeIds, results, loading, error } = useAppSelector((state) => state.search);
-
   const licensePlate = useAppSelector((state) => state.user.licensePlate);
 
   const [addressInput, setAddressInput] = useState<string>(destination?.address ?? '');
   const [sortBy, setSortBy] = useState<SortBy>('smart');
   const [geoLoading, setGeoLoading] = useState<boolean>(false);
   const [geoError, setGeoError] = useState<string | null>(null);
-    // "רחוב, עיר" -> מרכז המיקום של החניות באותו רחוב
   const [suggestions, setSuggestions] = useState<Record<string, { latitude: number; longitude: number }>>({});
 
   // חיפוש מחדש בכל שינוי ביעד, ברשימת ההחרגות או במיון
@@ -62,13 +61,7 @@ function SearchMapScreen() {
     }
   }, [dispatch, points, destination, excludeIds, sortBy]);
 
-  // בלי מספר רישוי שמור אי אפשר להמשיך: חוזרים למסך ההזנה
-  if (!licensePlate) {
-    return <Navigate to="/license-plate" replace />;
-  }
-
-  // הצעות לכתובת: מתוך הכתובות של החניות הקיימות במערכת
-   // הצעות לחיפוש: כל רחוב (בלי מספר בית) מופיע פעם אחת
+  // הצעות לחיפוש: כל רחוב (בלי מספר בית) מופיע פעם אחת
   useEffect(() => {
     let cancelled = false;
 
@@ -76,7 +69,6 @@ function SearchMapScreen() {
       .then((allSpots) => {
         if (cancelled) return;
 
-        // מקבצים לפי רחוב ועיר; חניות בלי קואורדינטות לא נכנסות
         const groups = new Map<string, ParkingSpot[]>();
         allSpots
           .filter((s) => s.latitude !== 0 && s.longitude !== 0)
@@ -85,7 +77,6 @@ function SearchMapScreen() {
             groups.set(key, [...(groups.get(key) ?? []), s]);
           });
 
-        // לכל רחוב: ממוצע המיקומים של החניות שבו
         const result: Record<string, { latitude: number; longitude: number }> = {};
         groups.forEach((group, key) => {
           result[key] = {
@@ -104,6 +95,11 @@ function SearchMapScreen() {
     };
   }, []);
 
+  // בלי מספר רישוי שמור אי אפשר להמשיך: חוזרים למסך ההזנה
+  if (!licensePlate) {
+    return <Navigate to="/license-plate" replace />;
+  }
+
   if (points <= 0) {
     return (
       <div style={{ padding: '24px', textAlign: 'center', color: '#dc2626', fontWeight: 700 }}>
@@ -119,7 +115,6 @@ function SearchMapScreen() {
       return;
     }
 
-        // נבחר רחוב מההצעות: מחפשים סביב מרכזו, בלי לפנות לשירות כתובות חיצוני
     const known = suggestions[addressInput.trim()];
     if (known !== undefined) {
       setGeoError(null);
@@ -132,7 +127,7 @@ function SearchMapScreen() {
       );
       return;
     }
-    
+
     setGeoLoading(true);
     setGeoError(null);
     try {
@@ -177,7 +172,7 @@ function SearchMapScreen() {
             boxSizing: 'border-box',
           }}
         />
-                <datalist id="address-suggestions">
+        <datalist id="address-suggestions">
           {Object.keys(suggestions).map((suggestion) => (
             <option key={suggestion} value={suggestion} />
           ))}
@@ -222,6 +217,11 @@ function SearchMapScreen() {
 
       {loading && <div style={{ padding: '24px', textAlign: 'center' }}>מחפש חניות...</div>}
       {error !== null && <div style={{ padding: '24px', color: 'red', textAlign: 'center' }}>{error}</div>}
+
+      {/* מפת החניות האינטראקטיבית */}
+      {destination !== null && !loading && error === null && (
+        <SpotsMap destination={destination} spots={results} />
+      )}
 
       {destination !== null && !loading && error === null && results.length === 0 && (
         <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
