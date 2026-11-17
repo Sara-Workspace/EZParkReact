@@ -7,6 +7,7 @@ import { excludeSpot } from '../store/search/searchSlice';
 import type { Reservation } from '../types';
 import InfoCard from './InfoCard';
 import Button from './Button';
+import { useSpotCheck } from '../hooks/useSpotCheck';
 
 function formatTime(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -22,6 +23,10 @@ function NavigationScreen() {
   const [now, setNow] = useState<number>(Date.now());
   const [busy, setBusy] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 🤖 בדיקת "החניה תפוסה" עם ה-AI. ההוק נקרא כאן, לפני ה-return המוקדם למטה,
+  // כי לפי כללי ה-Hooks אסור לקרוא להוק אחרי תנאי. אם עוד אין חניה, שולחים 0 (לא ישמש)
+  const { result: occupiedResult, loading: checking, reportOccupied } = useSpotCheck(spot?.spotId ?? 0, () => {});
 
   // מרעננים את "עכשיו" כל שנייה; הזמן שנותר נגזר ממנו
   useEffect(() => {
@@ -78,13 +83,25 @@ function NavigationScreen() {
     }
   };
 
-  const handleOccupied = async () => {
-    if (busy) return;
-    setBusy(true);
-    await releaseHold();
+  // חזרה לחיפוש בלי החניה התפוסה
+  const goSearchWithoutThisSpot = () => {
     dispatch(excludeSpot(spot.spotId)); // החיפוש הבא יוצג בלי החניה התפוסה
     dispatch(clearHold());
     navigate('/search');
+  };
+
+  // 🚗 "החניה תפוסה": קודם ה-AI בודק את תמונת המצלמה, ומציגים לנהג את התוצאה.
+  // אם אין מצלמה בחניה (או שהבדיקה נכשלה), ממשיכים ישר לחיפוש כמו קודם
+  const handleOccupied = async () => {
+    if (busy || checking) return;
+    setBusy(true);
+    const checkResult = await reportOccupied(); // השרת גם משחרר את השמירה של הנהג
+    if (checkResult === null) {
+      await releaseHold();
+      goSearchWithoutThisSpot();
+      return;
+    }
+    setBusy(false);
   };
 
   const handleRegret = async () => {
@@ -158,6 +175,25 @@ function NavigationScreen() {
         <div style={{ color: '#dc2626', fontSize: '13px', fontWeight: 700 }}>{error}</div>
       )}
 
+      {/* 🤖 הבדיקה הסתיימה: הנהג רואה רק תודה. את הפרטים (מספר הרכב, קנס) רואים רק בעל החניה והמנהל */}
+      {occupiedResult !== null ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div
+            style={{
+              background: '#eef2ff',
+              color: '#3730a3',
+              padding: '16px',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: 700,
+              textAlign: 'center',
+            }}
+          >
+            תודה על הדיווח! 🙏 בדקנו את החניה וטיפלנו בזה. בואי נמצא לך חניה אחרת
+          </div>
+          <Button label="חיפוש חניה אחרת 🔎" onClick={goSearchWithoutThisSpot} background="#4f46e5" color="white" />
+        </div>
+      ) : (
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
         {!expired && (
           <Button
@@ -167,9 +203,15 @@ function NavigationScreen() {
             color="white"
           />
         )}
-        <Button label="החניה תפוסה 🚫" onClick={handleOccupied} background="#d97706" color="white" />
+        <Button
+          label={checking ? 'בודק את החניה... 🤖' : 'החניה תפוסה 🚫'}
+          onClick={handleOccupied}
+          background="#d97706"
+          color="white"
+        />
         <Button label="התחרטתי" onClick={handleRegret} background="#e2e8f0" color="#0f172a" />
       </div>
+      )}
     </div>
   );
 }
