@@ -169,10 +169,20 @@ function SearchMapScreen() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: 'calc(100vh - 130px)', minHeight: '560px' }}>
+      <style>{`
+        .ez-search-body { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 16px; flex: 1; min-height: 0; }
+        .ez-search-list { overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding-left: 6px; }
+        .ez-search-map { min-height: 0; }
+        @media (max-width: 860px) {
+          .ez-search-body { grid-template-columns: 1fr; grid-template-rows: 280px 1fr; }
+          .ez-search-map { order: -1; }
+        }
+      `}</style>
       <form
         onSubmit={handleSearch}
         style={{
+          flexShrink: 0,
           background: '#f6faff',
           border: '1px solid #dfe8f3',
           borderRadius: '16px',
@@ -257,38 +267,49 @@ function SearchMapScreen() {
         </div>
       )}
 
-      {destination === null && (
+      {destination === null ? (
         <div style={{ padding: '24px', textAlign: 'center', color: '#5a6b82' }}>
           הזיני כתובת יעד כדי לראות חניות פנויות בסביבה.
         </div>
-      )}
+      ) : (
+        <div className="ez-search-body">
+          {/* רשימה: נגללת בנפרד */}
+          <div className="ez-search-list">
+            {loading && <div style={{ padding: '16px', textAlign: 'center', color: '#5a6b82' }}>מחפש חניות...</div>}
+            {error !== null && <div style={{ padding: '16px', color: '#dc2626', textAlign: 'center' }}>{error}</div>}
 
-      {loading && <div style={{ padding: '24px', textAlign: 'center' }}>מחפש חניות...</div>}
-      {error !== null && <div style={{ padding: '24px', color: 'red', textAlign: 'center' }}>{error}</div>}
+            {!loading && error === null && results.length === 0 && (
+              <div style={{ padding: '24px', textAlign: 'center', color: '#5a6b82' }}>
+                לא נמצאו חניות פנויות באזור הזה.
+              </div>
+            )}
 
-      {/* מפת החניות האינטראקטיבית */}
-      {destination !== null && !loading && error === null && (
-        <SpotsMap destination={destination} spots={results} />
-      )}
+            {!loading && results.length > 0 && (
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#5a6b82' }}>
+                {results.length} חניות פנויות באזור
+              </div>
+            )}
 
-      {destination !== null && !loading && error === null && results.length === 0 && (
-        <div style={{ padding: '24px', textAlign: 'center', color: '#5a6b82' }}>
-          לא נמצאו חניות פנויות באזור הזה.
+            {results.map((spot) => (
+              <ParkingCard
+                key={spot.spotId}
+                id={spot.spotId}
+                title={`${spot.address}, ${spot.city}`}
+                distance={formatDistance(spot.distanceKm)}
+                walkTime={formatWalkTime(spot.distanceKm)}
+                pricePerMin={(spot.effectivePricePerHour / 60).toFixed(2)}
+              />
+            ))}
+          </div>
+
+          {/* מפה: קבועה במקומה ולא זזה בזמן גלילת הרשימה */}
+          {error === null && (
+            <div className="ez-search-map">
+              <SpotsMap destination={destination} spots={results} fill />
+            </div>
+          )}
         </div>
       )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {results.map((spot) => (
-          <ParkingCard
-            key={spot.spotId}
-            id={spot.spotId}
-            title={`${spot.address}, ${spot.city}`}
-            distance={formatDistance(spot.distanceKm)}
-            walkTime={formatWalkTime(spot.distanceKm)}
-            pricePerMin={(spot.effectivePricePerHour / 60).toFixed(2)}
-          />
-        ))}
-      </div>
     </div>
   );
 }

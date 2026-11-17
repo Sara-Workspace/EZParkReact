@@ -12,9 +12,10 @@ interface ReviewItem {
 
 interface SpotReviewsProps {
   spotId: number;
+  compact?: boolean; // true = תקציר קטן לכרטיס (דירוג ממוצע + התגובה האחרונה)
 }
 
-function SpotReviews({ spotId }: SpotReviewsProps) {
+function SpotReviews({ spotId, compact = false }: SpotReviewsProps) {
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [average, setAverage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,6 +47,38 @@ function SpotReviews({ spotId }: SpotReviewsProps) {
   }, [spotId]);
 
   if (loading) return null;
+
+  if (compact) {
+    const latest = reviews[0];
+    return (
+      <div style={{ background: '#f6faff', border: '1px solid #dfe8f3', borderRadius: '14px', padding: '10px 12px' }}>
+        {latest === undefined ? (
+          <div style={{ fontSize: '12px', color: '#5a6b82' }}>עדיין אין תגובות על החניה</div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', fontWeight: 700 }}>
+              <span style={{ color: '#b45309' }}>⭐ {average.toFixed(1)}</span>
+              <span style={{ color: '#5a6b82' }}>{reviews.length} תגובות</span>
+            </div>
+            <p
+              style={{
+                margin: '6px 0 0 0',
+                fontSize: '12px',
+                color: '#2a3b52',
+                lineHeight: 1.4,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
+              “{latest.comment}”
+            </p>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

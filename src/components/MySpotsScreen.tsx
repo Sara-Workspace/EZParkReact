@@ -30,6 +30,7 @@ function MySpotsScreen() {
     evCharger: false,
   });
   const [savingId, setSavingId] = useState<number | null>(null);
+  const [selectedSpotId, setSelectedSpotId] = useState<number | null>(null); // החניה שפתוחה בחלון הניהול
   const [feedback, setFeedback] = useState<{ id: number; type: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
@@ -37,6 +38,12 @@ function MySpotsScreen() {
   }, [dispatch]);
 
   const mySpots = items;
+  const selectedSpot = mySpots.find((s) => s.spotId === selectedSpotId) ?? null;
+
+  const closeManage = () => {
+    setSelectedSpotId(null);
+    setEditingSpotId(null);
+  };
 
   const startEditing = (spot: ParkingSpot) => {
     setEditingSpotId(spot.spotId);
@@ -139,12 +146,12 @@ function MySpotsScreen() {
   }
 
   return (
-    <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: '#0a2540' }}>החניות שלי 🅿️</h2>
+          <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 800, color: '#0a2540' }}>החניות שלי 🅿️</h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#44566e' }}>
-            ניהול זמינות ועריכת פרטי חניה (עד {MAX_HOURLY_PRICE} נק׳/שעה)
+            {mySpots.length > 0 ? `${mySpots.length} חניות • ` : ''}ניהול זמינות ועריכת פרטים (עד {MAX_HOURLY_PRICE} נק׳/שעה)
           </p>
         </div>
         <Button
@@ -174,15 +181,139 @@ function MySpotsScreen() {
           />
         </InfoCard>
       ) : (
-        mySpots.map((spot) => {
+        /* רשת של כרטיסים ריבועיים: כל החניות של הבעלים */
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
+          {mySpots.map((spot) => {
+            const isSaving = savingId === spot.spotId;
+            const spotFeedback = feedback?.id === spot.spotId ? feedback : null;
+
+            return (
+              <div
+                key={spot.spotId}
+                onClick={() => setSelectedSpotId(spot.spotId)}
+                style={{
+                  minHeight: '300px',
+                  aspectRatio: '1 / 1',
+                  background: 'white',
+                  border: '1px solid #dfe8f3',
+                  borderRadius: '24px',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(10, 37, 64, 0.06)',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '42px', height: '42px', borderRadius: '14px', background: '#eaf3ff', color: '#0a6cf0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '20px' }}>
+                      P
+                    </div>
+                    <span
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '999px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        background: spot.isActive ? '#dcfce7' : '#eef4fb',
+                        color: spot.isActive ? '#166534' : '#44566e',
+                      }}
+                    >
+                      {spot.isActive ? '● זמינה' : '○ לא זמינה'}
+                    </span>
+                  </div>
+
+                  <h3 style={{ margin: '14px 0 2px 0', fontSize: '19px', fontWeight: 800, color: '#0a2540', lineHeight: 1.25 }}>
+                    {spot.address}
+                  </h3>
+                  <div style={{ fontSize: '14px', color: '#5a6b82' }}>{spot.city}</div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '22px', fontWeight: 800, color: '#0a6cf0' }}>
+                    {spot.basePricePerHour}
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#8fa1b8', marginRight: '4px' }}>נק׳/שעה</span>
+                  </div>
+                  {spot.evCharger && (
+                    <div style={{ fontSize: '12px', color: '#0369a1', fontWeight: 700, marginTop: '2px' }}>⚡ עמדת טעינה</div>
+                  )}
+                </div>
+
+                <SpotReviews spotId={spot.spotId} compact />
+
+                <div style={{ display: 'flex', gap: '8px' }} onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSpotId(spot.spotId)}
+                    style={{ flex: 1, padding: '9px 8px', borderRadius: '999px', border: '1px solid #cfdbea', background: 'white', color: '#0a2540', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    ניהול
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSaving}
+                    onClick={() => handleToggleAvailability(spot)}
+                    style={{
+                      flex: 1,
+                      padding: '9px 8px',
+                      borderRadius: '999px',
+                      border: 'none',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      cursor: isSaving ? 'not-allowed' : 'pointer',
+                      background: spot.isActive ? '#fee2e2' : '#dcfce7',
+                      color: spot.isActive ? '#b91c1c' : '#15803d',
+                    }}
+                  >
+                    {isSaving ? 'מעדכן...' : spot.isActive ? 'השהיה' : 'הפעלה'}
+                  </button>
+                </div>
+
+                {spotFeedback !== null && (
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: spotFeedback.type === 'ok' ? '#059669' : '#dc2626' }}>
+                    {spotFeedback.text}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* חלון ניהול מלא לחניה שנבחרה: עריכה, בדיקת רכב זר ותגובות */}
+      {selectedSpot !== null &&
+        (() => {
+          const spot = selectedSpot;
           const isSaving = savingId === spot.spotId;
           const isEditing = editingSpotId === spot.spotId;
           const spotFeedback = feedback?.id === spot.spotId ? feedback : null;
 
           return (
-            <InfoCard key={spot.spotId} title={`${spot.address}, ${spot.city}`}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
-                {/* שורת סטטוס, מחיר ופעולות */}
+            <div
+              onClick={closeManage}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(10, 37, 64, 0.45)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#0a2540' }}>{spot.address}</h3>
+                    <div style={{ fontSize: '14px', color: '#5a6b82', marginTop: '2px' }}>{spot.city}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeManage}
+                    aria-label="סגירה"
+                    style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid #dfe8f3', background: 'white', cursor: 'pointer', fontSize: '16px', color: '#44566e' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <span
@@ -197,12 +328,8 @@ function MySpotsScreen() {
                     >
                       {spot.isActive ? '● זמינה להזמנות' : '○ לא זמינה'}
                     </span>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#2a3b52' }}>
-                      {spot.basePricePerHour} נק׳/שעה
-                    </span>
-                    {spot.evCharger && (
-                      <span style={{ fontSize: '12px', color: '#0369a1', fontWeight: 700 }}>⚡ עמדת טעינה</span>
-                    )}
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#2a3b52' }}>{spot.basePricePerHour} נק׳/שעה</span>
+                    {spot.evCharger && <span style={{ fontSize: '12px', color: '#0369a1', fontWeight: 700 }}>⚡ עמדת טעינה</span>}
                   </div>
 
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -210,27 +337,17 @@ function MySpotsScreen() {
                       type="button"
                       disabled={isSaving}
                       onClick={() => (isEditing ? setEditingSpotId(null) : startEditing(spot))}
-                      style={{
-                        padding: '8px 14px',
-                        borderRadius: '10px',
-                        border: '1px solid #cfdbea',
-                        fontWeight: 700,
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        background: 'white',
-                        color: '#0a2540',
-                      }}
+                      style={{ padding: '8px 14px', borderRadius: '999px', border: '1px solid #cfdbea', fontWeight: 700, fontSize: '13px', cursor: 'pointer', background: 'white', color: '#0a2540' }}
                     >
                       {isEditing ? 'ביטול עריכה' : '✏️ עריכת פרטים'}
                     </button>
-
                     <button
                       type="button"
                       disabled={isSaving}
                       onClick={() => handleToggleAvailability(spot)}
                       style={{
                         padding: '8px 14px',
-                        borderRadius: '10px',
+                        borderRadius: '999px',
                         border: 'none',
                         fontWeight: 700,
                         fontSize: '13px',
@@ -244,24 +361,11 @@ function MySpotsScreen() {
                   </div>
                 </div>
 
-                {/* טופס עריכת פרטי חניה */}
                 {isEditing && (
-                  <div
-                    style={{
-                      background: '#f6faff',
-                      border: '1px solid #cfdbea',
-                      borderRadius: '12px',
-                      padding: '16px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                    }}
-                  >
+                  <div style={{ background: '#f6faff', border: '1px solid #cfdbea', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
-                          כתובת (רחוב ומספר)
-                        </label>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>כתובת (רחוב ומספר)</label>
                         <input
                           type="text"
                           value={editDraft.address}
@@ -270,9 +374,7 @@ function MySpotsScreen() {
                         />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
-                          עיר
-                        </label>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>עיר</label>
                         <input
                           type="text"
                           value={editDraft.city}
@@ -313,16 +415,7 @@ function MySpotsScreen() {
                         type="button"
                         disabled={isSaving}
                         onClick={() => handleSaveSpotDetails(spot)}
-                        style={{
-                          padding: '8px 16px',
-                          borderRadius: '10px',
-                          border: 'none',
-                          fontWeight: 700,
-                          fontSize: '13px',
-                          cursor: isSaving ? 'not-allowed' : 'pointer',
-                          background: '#0a6cf0',
-                          color: 'white',
-                        }}
+                        style={{ padding: '8px 18px', borderRadius: '999px', border: 'none', fontWeight: 700, fontSize: '13px', cursor: isSaving ? 'not-allowed' : 'pointer', background: '#0a6cf0', color: 'white' }}
                       >
                         {isSaving ? 'שומר...' : 'שמירת שינויים'}
                       </button>
@@ -330,25 +423,18 @@ function MySpotsScreen() {
                   </div>
                 )}
 
-                <OwnerSpotCheck spotId={spot.spotId} onChecked={() => dispatch(fetchMyParkings())} />
-
                 {spotFeedback !== null && (
-                  <div
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      color: spotFeedback.type === 'ok' ? '#059669' : '#dc2626',
-                    }}
-                  >
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: spotFeedback.type === 'ok' ? '#059669' : '#dc2626' }}>
                     {spotFeedback.text}
                   </div>
                 )}
+
+                <OwnerSpotCheck spotId={spot.spotId} onChecked={() => dispatch(fetchMyParkings())} />
                 <SpotReviews spotId={spot.spotId} />
               </div>
-            </InfoCard>
+            </div>
           );
-        })
-      )}
+        })()}
     </div>
   );
 }

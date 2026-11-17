@@ -7,9 +7,10 @@ import type { Destination, SearchResult } from '../types';
 interface SpotsMapProps {
   destination: Destination | null;
   spots: SearchResult[];
+  fill?: boolean; // true = ממלאת את כל הגובה של ההורה (לפריסה של מפה בצד)
 }
 
-function SpotsMap({ destination, spots }: SpotsMapProps) {
+function SpotsMap({ destination, spots, fill = false }: SpotsMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
@@ -32,7 +33,13 @@ function SpotsMap({ destination, spots }: SpotsMapProps) {
     markersLayerRef.current = L.layerGroup().addTo(map);
     mapInstanceRef.current = map;
 
+    // כשגודל המיכל משתנה (פריסה, שינוי חלון) המפה צריכה לחשב מחדש את עצמה
+    const container = mapContainerRef.current;
+    const resizeObserver = new ResizeObserver(() => map.invalidateSize());
+    resizeObserver.observe(container);
+
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
       markersLayerRef.current = null;
@@ -111,13 +118,14 @@ function SpotsMap({ destination, spots }: SpotsMapProps) {
   return (
     <div
       style={{
+        height: fill ? '100%' : undefined,
         borderRadius: '16px',
         overflow: 'hidden',
         border: '1px solid #cfdbea',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       }}
     >
-      <div ref={mapContainerRef} style={{ width: '100%', height: '360px', zIndex: 1 }} />
+      <div ref={mapContainerRef} style={{ width: '100%', height: fill ? '100%' : '360px', zIndex: 1 }} />
     </div>
   );
 }

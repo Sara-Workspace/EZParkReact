@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom'; // 1. ייבוא ההוק
 
 interface ParkingCardProps {
@@ -31,8 +30,8 @@ function ParkingCard({ id, title, distance, walkTime, pricePerMin }: ParkingCard
           {id}
         </div>
         <div>
-          <h5 style={{ fontSize: '12px', fontWeight: 700 }}>{title}</h5>
-          <p style={{ fontSize: '10px', color: '#5a6b82' }}>{distance} • {walkTime} • {walkTime}</p>
+          <h5 style={{ fontSize: '13px', fontWeight: 700 }}>{title}</h5>
+          <p style={{ fontSize: '10px', color: '#5a6b82' }}>{distance} • {walkTime}</p>
         </div>
       </div>
       <div style={{ textAlign: 'left' }}>
