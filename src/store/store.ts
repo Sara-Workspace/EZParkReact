@@ -3,6 +3,7 @@ import parkingsReducer from './parkings/parkingsSlice';
 import userReducer from './user/userSlice';
 import searchReducer from './search/searchSlice';
 import sessionReducer from './session/sessionSlice';
+import chatReducer from './chat/chatSlice';
  
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     user: userReducer,
     search: searchReducer,
     session: sessionReducer,
+    chat: chatReducer,
 
   },
 });
