@@ -4,6 +4,7 @@ import { refreshPoints } from '../store/user/userThunks';
 import { useAppDispatch, useAppSelector } from '../store/hooks'; // התאם לנתיב שלך
 import { logout } from '../store/user/userSlice'; // התאם לנתיב של ה-Slice שלך
 import { loadActiveReservation } from '../store/session/sessionThunks';
+import ChatWidget from './ChatWidget';
 
 
 
@@ -123,6 +124,9 @@ function Layout() {
       <main style={{ maxWidth: '1024px', margin: '24px auto', padding: '0 16px' }}>
         <Outlet />
       </main>
+
+      {/* 💬 עוזר ה-AI: כפתור צ'אט בפינת המסך, בכל המסכים של משתמש מחובר */}
+      <ChatWidget />
     </div>
   );
 }
