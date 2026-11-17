@@ -18,6 +18,7 @@ interface DriverItem {
   email: string;
   phone: string;
   creditBalance: number;
+  points?: number;
   isAdmin: boolean;
 }
 
@@ -354,7 +355,7 @@ function AdminDashboard() {
                       </td>
                       <td style={tdStyle}>{driver.email}</td>
                       <td style={tdStyle}>{driver.phone}</td>
-                      <td style={tdStyle}>₪{driver.creditBalance}</td>
+                      <td style={tdStyle}>{driver.points ?? driver.creditBalance ?? 0} נק׳</td>
                       <td style={tdStyle}>{driver.isAdmin ? 'מנהל + נהג' : 'נהג'}</td>
                     </tr>
                   );

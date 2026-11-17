@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiFetch } from '../api/api';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchParkings } from '../store/parkings/parkingsThunks';
-import type { Reservation } from '../types';
+import type { ParkingSpot, Reservation } from '../types';
 import { parseServerUtc } from '../utils/time';
 import RentalRow from './RentalRow';
 import StatCard from './StatCard';
@@ -21,22 +21,27 @@ function formatTimeAgo(isoDate: string): string {
 function DashboardScreen() {
   const dispatch = useAppDispatch();
   const { items: spots } = useAppSelector((state) => state.parkings);
-  const user = useAppSelector((state) => state.user);
 
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [mySpotIds, setMySpotIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchParkings());
 
-    const loadReservations = async () => {
+    const loadPersonalActivity = async () => {
       try {
         setLoading(true);
         setError(null);
-        const endpoint = user.role === 'Admin' ? '/Reservations' : '/Reservations/my';
-        const data = await apiFetch<Reservation[]>(endpoint);
-        setReservations(data);
+
+        const [myReservations, myOwnedSpots] = await Promise.all([
+          apiFetch<Reservation[]>('/Reservations/my'),
+          apiFetch<ParkingSpot[]>('/ParkingSpots/my').catch(() => [] as ParkingSpot[]),
+        ]);
+
+        setReservations(myReservations);
+        setMySpotIds(new Set(myOwnedSpots.map((s) => s.spotId)));
       } catch {
         setError('לא ניתן היה לטעון את נתוני ההשכרות מהשרת.');
       } finally {
@@ -44,19 +49,28 @@ function DashboardScreen() {
       }
     };
 
-    loadReservations();
-  }, [dispatch, user.role]);
+    loadPersonalActivity();
+  }, [dispatch]);
 
   const spotById = new Map(spots.map((s) => [s.spotId, s]));
 
-  // חישוב נתונים אמיתיים לחודש הנוכחי
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  const monthlyPoints = reservations
+  // נקודות שנוספו החודש (כהכנסה מהשכרת חניות שלי)
+  const earnedThisMonth = reservations
     .filter((r) => {
-      if (r.status !== 'Completed') return false;
+      if (r.status !== 'Completed' || !mySpotIds.has(r.spotID)) return false;
+      const d = new Date(parseServerUtc(r.startTime));
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    })
+    .reduce((sum, r) => sum + Number(r.totalPrice || 0), 0);
+
+  // נקודות שירדו החודש (תשלום על חניה אצל אחרים)
+  const spentThisMonth = reservations
+    .filter((r) => {
+      if (r.status !== 'Completed' || mySpotIds.has(r.spotID)) return false;
       const d = new Date(parseServerUtc(r.startTime));
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
@@ -98,16 +112,21 @@ function DashboardScreen() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
         <StatCard
-          title={user.role === 'Admin' ? 'מחזור נקודות החודש' : 'הנקודות שלי החודש'}
-          value={`${monthlyPoints.toFixed(1)} נק׳`}
-          valueColor="#4f46e5"
+          title="נקודות שנוספו לי החודש"
+          value={`+${earnedThisMonth.toFixed(1)} נק׳`}
+          valueColor="#059669"
         />
         <StatCard
-          title="השכרות פעילות כרגע"
-          value={`${activeCount} השכרות`}
-          valueColor="#059669"
+          title="נקודות שירדו לי החודש"
+          value={`-${spentThisMonth.toFixed(1)} נק׳`}
+          valueColor="#dc2626"
+        />
+        <StatCard
+          title="הזמנות פעילות כרגע"
+          value={`${activeCount}`}
+          valueColor="#4f46e5"
         />
       </div>
 
@@ -123,12 +142,12 @@ function DashboardScreen() {
         }}
       >
         <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-          {user.role === 'Admin' ? 'השכרות אחרונות במערכת' : 'ההשכרות האחרונות שלי'} ({reservations.length})
+          הפעילות האחרונה שלי ({reservations.length})
         </h4>
 
         {recentReservations.length === 0 ? (
           <p style={{ fontSize: '13px', color: '#64748b', margin: '8px 0 0 0' }}>
-            עדיין אין השכרות להצגה.
+            עדיין אין השכרות או חניות להצגה.
           </p>
         ) : (
           recentReservations.map((res) => {
@@ -141,6 +160,7 @@ function DashboardScreen() {
               Math.round((endMs - parseServerUtc(res.startTime)) / 60000)
             );
             const isActive = res.status === 'Active';
+            const isIncome = mySpotIds.has(res.spotID);
 
             return (
               <RentalRow
@@ -152,6 +172,7 @@ function DashboardScreen() {
                 totalEarnings={Number(res.totalPrice || 0).toFixed(1)}
                 statusLabel={isActive ? 'פעילה כעת' : 'הושלמה'}
                 isActive={isActive}
+                isIncome={isIncome}
               />
             );
           })

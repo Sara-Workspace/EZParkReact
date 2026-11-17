@@ -6,17 +6,29 @@ import type { ParkingSpot } from '../types';
 import SpotReviews from './SpotReviews';
 import InfoCard from './InfoCard';
 import Button from './Button';
-import OwnerSpotCheck from './OwnerSpotCheck'; // 🏠 בדיקת רכב זר בחניה (תמונה + AI)
+import OwnerSpotCheck from './OwnerSpotCheck';
 
 const MAX_HOURLY_PRICE = 50;
+
+interface SpotEditDraft {
+  address: string;
+  city: string;
+  basePricePerHour: string;
+  evCharger: boolean;
+}
 
 function MySpotsScreen() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { items, loading, error } = useAppSelector((state) => state.parkings);
- 
 
-  const [priceDrafts, setPriceDrafts] = useState<Record<number, string>>({});
+  const [editingSpotId, setEditingSpotId] = useState<number | null>(null);
+  const [editDraft, setEditDraft] = useState<SpotEditDraft>({
+    address: '',
+    city: '',
+    basePricePerHour: '25',
+    evCharger: false,
+  });
   const [savingId, setSavingId] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ id: number; type: 'ok' | 'err'; text: string } | null>(null);
 
@@ -24,10 +36,18 @@ function MySpotsScreen() {
     dispatch(fetchMyParkings());
   }, [dispatch]);
 
-    const mySpots = items; // השרת כבר החזיר רק את החניות שלה
+  const mySpots = items;
 
-  const getPriceInput = (spot: ParkingSpot): string =>
-    priceDrafts[spot.spotId] !== undefined ? priceDrafts[spot.spotId] : String(spot.basePricePerHour);
+  const startEditing = (spot: ParkingSpot) => {
+    setEditingSpotId(spot.spotId);
+    setFeedback(null);
+    setEditDraft({
+      address: spot.address,
+      city: spot.city,
+      basePricePerHour: String(spot.basePricePerHour),
+      evCharger: spot.evCharger,
+    });
+  };
 
   const handleToggleAvailability = async (spot: ParkingSpot) => {
     if (savingId !== null) return;
@@ -58,11 +78,23 @@ function MySpotsScreen() {
     }
   };
 
-  const handleSavePrice = async (spot: ParkingSpot) => {
+  const handleSaveSpotDetails = async (spot: ParkingSpot) => {
     if (savingId !== null) return;
-    const parsedPrice = Number(getPriceInput(spot));
 
-  if (!Number.isFinite(parsedPrice) || parsedPrice < 1 || parsedPrice > MAX_HOURLY_PRICE) {
+    const trimmedAddress = editDraft.address.trim();
+    const trimmedCity = editDraft.city.trim();
+    const parsedPrice = Number(editDraft.basePricePerHour);
+
+    if (trimmedAddress.length < 2 || trimmedCity.length < 2) {
+      setFeedback({
+        id: spot.spotId,
+        type: 'err',
+        text: 'יש להזין כתובת ועיר תקינות (לפחות 2 תווים).',
+      });
+      return;
+    }
+
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 1 || parsedPrice > MAX_HOURLY_PRICE) {
       setFeedback({
         id: spot.spotId,
         type: 'err',
@@ -78,20 +110,24 @@ function MySpotsScreen() {
       await dispatch(
         updateParking({
           ...spot,
+          address: trimmedAddress,
+          city: trimmedCity,
           basePricePerHour: parsedPrice,
+          evCharger: editDraft.evCharger,
         })
       ).unwrap();
 
+      setEditingSpotId(null);
       setFeedback({
         id: spot.spotId,
         type: 'ok',
-        text: `המחיר עודכן ל-${parsedPrice} נקודות לשעה ✅`,
+        text: 'פרטי החניה עודכנו בהצלחה ✅',
       });
     } catch {
       setFeedback({
         id: spot.spotId,
         type: 'err',
-        text: `השרת דחה את העדכון (מקסימום ${MAX_HOURLY_PRICE} נק'/שעה).`,
+        text: 'שמירת פרטי החניה נכשלה. נסי שוב.',
       });
     } finally {
       setSavingId(null);
@@ -108,7 +144,7 @@ function MySpotsScreen() {
         <div>
           <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: '#0f172a' }}>החניות שלי 🅿️</h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#475569' }}>
-            ניהול זמינות ומחיר לשעה (עד {MAX_HOURLY_PRICE} נק׳/שעה)
+            ניהול זמינות ועריכת פרטי חניה (עד {MAX_HOURLY_PRICE} נק׳/שעה)
           </p>
         </div>
         <Button
@@ -140,14 +176,15 @@ function MySpotsScreen() {
       ) : (
         mySpots.map((spot) => {
           const isSaving = savingId === spot.spotId;
+          const isEditing = editingSpotId === spot.spotId;
           const spotFeedback = feedback?.id === spot.spotId ? feedback : null;
 
           return (
             <InfoCard key={spot.spotId} title={`${spot.address}, ${spot.city}`}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
-                {/* שורת סטטוס וזמינות */}
+                {/* שורת סטטוס, מחיר ופעולות */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <span
                       style={{
                         padding: '4px 10px',
@@ -160,76 +197,139 @@ function MySpotsScreen() {
                     >
                       {spot.isActive ? '● זמינה להזמנות' : '○ לא זמינה'}
                     </span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
+                      {spot.basePricePerHour} נק׳/שעה
+                    </span>
                     {spot.evCharger && (
                       <span style={{ fontSize: '12px', color: '#0369a1', fontWeight: 700 }}>⚡ עמדת טעינה</span>
                     )}
                   </div>
 
-                  <button
-                    type="button"
-                    disabled={isSaving}
-                    onClick={() => handleToggleAvailability(spot)}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '10px',
-                      border: 'none',
-                      fontWeight: 700,
-                      fontSize: '13px',
-                      cursor: isSaving ? 'not-allowed' : 'pointer',
-                      background: spot.isActive ? '#fee2e2' : '#dcfce7',
-                      color: spot.isActive ? '#b91c1c' : '#15803d',
-                    }}
-                  >
-                    {isSaving ? 'מעדכן...' : spot.isActive ? 'סמני כלא זמינה' : 'הפכי לזמינה'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      disabled={isSaving}
+                      onClick={() => (isEditing ? setEditingSpotId(null) : startEditing(spot))}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '10px',
+                        border: '1px solid #cbd5e1',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        background: 'white',
+                        color: '#0f172a',
+                      }}
+                    >
+                      {isEditing ? 'ביטול עריכה' : '✏️ עריכת פרטים'}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isSaving}
+                      onClick={() => handleToggleAvailability(spot)}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                        cursor: isSaving ? 'not-allowed' : 'pointer',
+                        background: spot.isActive ? '#fee2e2' : '#dcfce7',
+                        color: spot.isActive ? '#b91c1c' : '#15803d',
+                      }}
+                    >
+                      {isSaving ? 'מעדכן...' : spot.isActive ? 'סמני כלא זמינה' : 'הפכי לזמינה'}
+                    </button>
+                  </div>
                 </div>
 
-                {/* שורת עריכת מחיר לשעה */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 700, color: '#334155' }}>
-                    מחיר לשעה (נק׳):
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={MAX_HOURLY_PRICE}
-                    step="1"
-                    value={getPriceInput(spot)}
-                    onChange={(e) =>
-                      setPriceDrafts((prev) => ({ ...prev, [spot.spotId]: e.target.value }))
-                    }
+                {/* טופס עריכת פרטי חניה */}
+                {isEditing && (
+                  <div
                     style={{
-                      width: '90px',
-                      padding: '8px 10px',
-                      borderRadius: '10px',
+                      background: '#f8fafc',
                       border: '1px solid #cbd5e1',
-                      fontSize: '14px',
-                      fontWeight: 700,
-                    }}
-                  />
-                  <button
-                    type="button"
-                    disabled={isSaving}
-                    onClick={() => handleSavePrice(spot)}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '10px',
-                      border: 'none',
-                      fontWeight: 700,
-                      fontSize: '13px',
-                      cursor: isSaving ? 'not-allowed' : 'pointer',
-                      background: '#0f172a',
-                      color: 'white',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
                     }}
                   >
-                    שמירת מחיר
-                  </button>
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>
-                    (מקסימום {MAX_HOURLY_PRICE} נק׳ לשעה)
-                    </span>
-                </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
+                          כתובת (רחוב ומספר)
+                        </label>
+                        <input
+                          type="text"
+                          value={editDraft.address}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, address: e.target.value }))}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
+                          עיר
+                        </label>
+                        <input
+                          type="text"
+                          value={editDraft.city}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, city: e.target.value }))}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
 
-                {/* 🏠 בדיקת רכב זר בחניה. אחרי בדיקה מרעננים את החניות, כי היא יכולה להפוך חניה ללא זמינה */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
+                          מחיר לשעה (1–{MAX_HOURLY_PRICE} נק׳)
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={MAX_HOURLY_PRICE}
+                          step="0.5"
+                          value={editDraft.basePricePerHour}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, basePricePerHour: e.target.value }))}
+                          style={{ width: '110px', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', marginTop: '16px' }}>
+                        <input
+                          type="checkbox"
+                          checked={editDraft.evCharger}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, evCharger: e.target.checked }))}
+                        />
+                        עמדת טעינה חשמלית ⚡
+                      </label>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                      <button
+                        type="button"
+                        disabled={isSaving}
+                        onClick={() => handleSaveSpotDetails(spot)}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: '10px',
+                          border: 'none',
+                          fontWeight: 700,
+                          fontSize: '13px',
+                          cursor: isSaving ? 'not-allowed' : 'pointer',
+                          background: '#4f46e5',
+                          color: 'white',
+                        }}
+                      >
+                        {isSaving ? 'שומר...' : 'שמירת שינויים'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <OwnerSpotCheck spotId={spot.spotId} onChecked={() => dispatch(fetchMyParkings())} />
 
                 {spotFeedback !== null && (

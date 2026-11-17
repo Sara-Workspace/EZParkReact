@@ -6,6 +6,7 @@ interface RentalRowProps {
   totalEarnings: string;
   statusLabel?: string;
   isActive?: boolean;
+  isIncome?: boolean;
 }
 
 function RentalRow({
@@ -16,7 +17,11 @@ function RentalRow({
   totalEarnings,
   statusLabel = 'הושלם בהצלחה',
   isActive = false,
+  isIncome = true,
 }: RentalRowProps) {
+  const amountColor = isActive ? '#d97706' : isIncome ? '#059669' : '#dc2626';
+  const sign = isIncome ? '+' : '-';
+
   return (
     <div
       style={{
@@ -35,8 +40,8 @@ function RentalRow({
           style={{
             width: '36px',
             height: '36px',
-            background: isActive ? '#fef3c7' : '#ecfdf5',
-            color: isActive ? '#d97706' : '#059669',
+            background: isActive ? '#fef3c7' : isIncome ? '#ecfdf5' : '#fef2f2',
+            color: amountColor,
             borderRadius: '12px',
             display: 'flex',
             alignItems: 'center',
@@ -45,11 +50,14 @@ function RentalRow({
             fontWeight: 700,
           }}
         >
-          🚗
+          {isIncome ? '🏠' : '🚗'}
         </div>
         <div>
           <h5 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-            {plateNumber}
+            {plateNumber}{' '}
+            <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>
+              ({isIncome ? 'השכרת חניה שלי' : 'חניתי אצל אחר'})
+            </span>
           </h5>
           <p style={{ fontSize: '11px', color: '#64748b', margin: '3px 0 0 0' }}>
             {timeAgo} • {durationMin} דקות • {type}
@@ -62,10 +70,10 @@ function RentalRow({
             display: 'block',
             fontSize: '13px',
             fontWeight: 900,
-            color: isActive ? '#d97706' : '#059669',
+            color: amountColor,
           }}
         >
-          {totalEarnings} נק׳
+          {sign}{totalEarnings} נק׳
         </span>
         <span style={{ display: 'block', fontSize: '10px', color: '#94a3b8' }}>
           {statusLabel}
