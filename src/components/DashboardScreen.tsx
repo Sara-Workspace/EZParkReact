@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage } from '../api/api';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchParkings } from '../store/parkings/parkingsThunks';
 import type { ParkingSpot, Reservation } from '../types';
@@ -42,8 +42,8 @@ function DashboardScreen() {
 
         setReservations(myReservations);
         setMySpotIds(new Set(myOwnedSpots.map((s) => s.spotId)));
-      } catch {
-        setError('לא ניתן היה לטעון את נתוני ההשכרות מהשרת.');
+      } catch (err) {
+        setError(getErrorMessage(err, 'לא ניתן היה לטעון את נתוני ההשכרות מהשרת.'));
       } finally {
         setLoading(false);
       }

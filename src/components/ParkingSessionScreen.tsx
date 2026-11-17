@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage, getErrorStatus } from '../api/api';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setReservation, clearSession } from '../store/session/sessionSlice';
 import { clearSearch } from '../store/search/searchSlice';
@@ -115,8 +115,8 @@ function ParkingSessionScreen() {
       });
       dispatch(setReservation(done)); // הסטטוס הופך ל-Completed והמסך עובר לסיכום
       dispatch(refreshPoints());
-    } catch {
-      setError('סיום החניה נכשל. נסי שוב.');
+    } catch (err) {
+      setError(getErrorMessage(err, 'סיום החניה נכשל. נסי שוב.'));
     } finally {
       setBusy(false);
     }
@@ -142,11 +142,10 @@ function ParkingSessionScreen() {
       });
       setReviewSent(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : '';
       setReviewError(
-        message.includes('403')
+        getErrorStatus(err) === 403
           ? 'כרגע אפשר להשאיר תגובה רק מחשבון שנכנס כנהג.'
-          : 'שליחת התגובה נכשלה. נסי שוב.'
+          : getErrorMessage(err, 'שליחת התגובה נכשלה. נסי שוב.')
       );
     } finally {
       setBusy(false);
@@ -216,6 +215,8 @@ function ParkingSessionScreen() {
                 maxLength={500}
                 style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1px solid #cfdbea', boxSizing: 'border-box' }}
               />
+              {/* מונה תווים: כמה כתבו מתוך 500 */}
+              <span style={{ fontSize: '11px', color: '#5a6b82' }}>{comment.trim().length}/500 תווים (לפחות 2)</span>
               {reviewError !== null && (
                 <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700 }}>{reviewError}</div>
               )}

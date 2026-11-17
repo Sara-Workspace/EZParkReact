@@ -53,3 +53,12 @@ export interface SpotCheckResult {
   finePoints: number;
   spotAvailable: boolean;
 }
+
+// 🕐 שעות זמינות של חניה: חלון זמן אחד שחוזר כל שבוע (מגיע מ-api/SpotAvailability)
+export interface SpotHours {
+  availabilityID: number; // מזהה השורה (בשביל מחיקה)
+  spotID: number;
+  dayOfWeek: number;      // 0=ראשון ... 6=שבת
+  startTime: string;      // "08:00:00"
+  endTime: string;        // "16:00:00"
+}

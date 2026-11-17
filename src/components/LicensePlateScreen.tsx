@@ -1,6 +1,8 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage } from '../api/api';
+import FieldMessage from './FieldMessage';
+import { validatePlate } from '../utils/validation';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setLicensePlate } from '../store/user/userSlice';
 import ScreenSection from './ScreenSection';
@@ -18,6 +20,11 @@ function LicensePlateScreen() {
   const [plate, setPlate] = useState<string>(user.licensePlate ?? '');
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  // הופך ל-true אחרי הניסיון הראשון להמשיך. רק מאז מסמנים את השדה באדום
+  const [showErrors, setShowErrors] = useState<boolean>(false);
+
+  // בדיקת המספר בכל הקלדה: 7 או 8 ספרות
+  const plateError = validatePlate(plate);
 
   // אין נקודות: לא מציגים טופס ולא ממשיכים לרשימת החניות
   if (user.points <= 0) {
@@ -44,10 +51,8 @@ function LicensePlateScreen() {
     e.preventDefault();
 
     const cleanPlate = plate.trim();
-    if (cleanPlate.length < 5 || cleanPlate.length > 12) {
-      setError('מספר רישוי לא תקין (בין 5 ל-12 תווים)');
-      return;
-    }
+    setShowErrors(true);
+    if (plateError !== null) return; // ההודעה כבר מוצגת מתחת לשדה
 
     setSaving(true);
     setError(null);
@@ -62,8 +67,8 @@ function LicensePlateScreen() {
 
       dispatch(setLicensePlate(cleanPlate));
       navigate('/search');
-    } catch {
-      setError('שמירת מספר הרישוי נכשלה. נסי שוב.');
+    } catch (err) {
+      setError(getErrorMessage(err, 'שמירת מספר הרישוי נכשלה. נסי שוב.'));
     } finally {
       setSaving(false);
     }
@@ -88,7 +93,7 @@ function LicensePlateScreen() {
       )}
 
       <ScreenSection title="באיזה רכב תחני היום?">
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <label htmlFor="license-plate" style={{ fontSize: '12px', fontWeight: 700, color: '#44566e' }}>
             מספר רישוי
           </label>
@@ -106,9 +111,15 @@ function LicensePlateScreen() {
               boxSizing: 'border-box',
             }}
           />
+          {/* בזמן ההקלדה: כמה ספרות חסרות */}
+          <FieldMessage
+            error={plateError}
+            show={showErrors}
+            hint={plate.trim() === '' ? '7 או 8 ספרות, מותר עם מקפים' : plateError ?? '✓ מספר תקין'}
+          />
 
           {error !== null && (
-            <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700 }}>{error}</div>
+            <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700, whiteSpace: 'pre-line' }}>{error}</div>
           )}
 
           <Button

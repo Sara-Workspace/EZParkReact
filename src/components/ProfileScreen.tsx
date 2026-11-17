@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { apiFetch } from '../api/api';
+import { apiFetch, getErrorMessage } from '../api/api';
+import FieldMessage from './FieldMessage';
+import { validatePhone, validatePlate, validateText } from '../utils/validation';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setUser, setLicensePlate } from '../store/user/userSlice';
 import InfoCard from './InfoCard';
@@ -44,6 +46,19 @@ function ProfileScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  // הופך ל-true אחרי הניסיון הראשון לשמור. רק מאז מסמנים שדות באדום
+  const [showErrors, setShowErrors] = useState<boolean>(false);
+
+  // ===== בדיקת השדות (אותם כללים כמו בשרת) =====
+  const firstNameError = validateText(firstName, 'שם פרטי', 2, 50);
+  const lastNameError = validateText(lastName, 'שם משפחה', 2, 50);
+  const phoneError = validatePhone(phone);
+  const bankError = isOwner ? validateText(bankDetails, 'פרטי חשבון בנק', 5, 100) : null;
+  // מספר רישוי בפרופיל לא חובה, אבל אם כתבו - חייב להיות תקין
+  const plateError = !isOwner && plate.trim() !== '' ? validatePlate(plate) : null;
+
+  const hasErrors = [firstNameError, lastNameError, phoneError, bankError, plateError]
+    .some((fieldError) => fieldError !== null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -71,10 +86,10 @@ function ProfileScreen() {
             setPlate(data.licensePlate);
           }
         }
-      } catch {
+      } catch (err) {
         setFeedback({
           type: 'err',
-          text: 'לא ניתן היה לטעון את פרטי הפרופיל מהשרת.',
+          text: getErrorMessage(err, 'לא ניתן היה לטעון את פרטי הפרופיל מהשרת.'),
         });
       } finally {
         setLoading(false);
@@ -88,18 +103,10 @@ function ProfileScreen() {
     e.preventDefault();
     if (saving) return;
 
-    if (firstName.trim().length < 2 || lastName.trim().length < 2) {
-      setFeedback({ type: 'err', text: 'שם פרטי ושם משפחה חייבים להכיל לפחות 2 תווים.' });
-      return;
-    }
-
-    if (phone.trim().length < 7) {
-      setFeedback({ type: 'err', text: 'יש להזין מספר טלפון תקין.' });
-      return;
-    }
-
-    if (isOwner && bankDetails.trim().length === 0) {
-      setFeedback({ type: 'err', text: 'פרטי חשבון בנק הם שדה חובה לבעל חניה.' });
+    // יש שדה לא תקין: מסמנים באדום ולא שולחים לשרת
+    setShowErrors(true);
+    if (hasErrors) {
+      setFeedback({ type: 'err', text: 'יש לתקן את השדות המסומנים באדום.' });
       return;
     }
 
@@ -176,8 +183,8 @@ function ProfileScreen() {
         text: isOwner ? 'פרטי בעל החניה עודכנו בהצלחה ✅' : 'פרטי המשתמש עודכנו בהצלחה ✅',
       });
     } catch (err) {
-      const msg = (err as { message?: string }).message ?? 'שגיאה בעדכון הפרטים';
-      setFeedback({ type: 'err', text: msg });
+      // ההודעה הברורה מהשרת (למשל "מספר הטלפון לא תקין")
+      setFeedback({ type: 'err', text: getErrorMessage(err, 'שגיאה בעדכון הפרטים. נסי שוב.') });
     } finally {
       setSaving(false);
     }
@@ -207,7 +214,8 @@ function ProfileScreen() {
   return (
     <div style={{ maxWidth: '560px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <InfoCard title={isOwner ? 'עדכון פרטי בעל חניה 🏠' : 'עדכון פרטי משתמש 👤'}>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '14px' }}>
+        {/* noValidate: במקום הבועות של הדפדפן, מופיעות ההודעות שלנו מתחת לשדות */}
+        <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '14px' }}>
           <div>
             <label style={labelStyle}>אימייל (לא ניתן לשינוי)</label>
             <input
@@ -231,6 +239,7 @@ function ProfileScreen() {
                 onChange={(e) => setFirstName(e.target.value)}
                 style={inputStyle}
               />
+              <FieldMessage error={firstNameError} show={showErrors} />
             </div>
 
             <div>
@@ -245,6 +254,7 @@ function ProfileScreen() {
                 onChange={(e) => setLastName(e.target.value)}
                 style={inputStyle}
               />
+              <FieldMessage error={lastNameError} show={showErrors} />
             </div>
           </div>
 
@@ -257,6 +267,12 @@ function ProfileScreen() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               style={inputStyle}
+            />
+            {/* בזמן ההקלדה: כמה ספרות חסרות */}
+            <FieldMessage
+              error={phoneError}
+              show={showErrors}
+              hint={phone === '' ? 'מספר נייד, 10 ספרות' : phoneError ?? '✓ מספר תקין'}
             />
           </div>
 
@@ -273,6 +289,7 @@ function ProfileScreen() {
                 onChange={(e) => setBankDetails(e.target.value)}
                 style={inputStyle}
               />
+              <FieldMessage error={bankError} show={showErrors} />
             </div>
           ) : (
             <div>
@@ -284,6 +301,11 @@ function ProfileScreen() {
                 value={plate}
                 onChange={(e) => setPlate(e.target.value)}
                 style={inputStyle}
+              />
+              <FieldMessage
+                error={plateError}
+                show={showErrors}
+                hint={plate.trim() === '' ? 'לא חובה. 7 או 8 ספרות' : plateError ?? '✓ מספר תקין'}
               />
             </div>
           )}
@@ -298,6 +320,7 @@ function ProfileScreen() {
                 background: feedback.type === 'ok' ? '#ecfdf5' : '#fef2f2',
                 color: feedback.type === 'ok' ? '#059669' : '#dc2626',
                 border: `1px solid ${feedback.type === 'ok' ? '#a7f3d0' : '#fecaca'}`,
+                whiteSpace: 'pre-line', // כמה הודעות מהשרת - כל אחת בשורה
               }}
             >
               {feedback.text}

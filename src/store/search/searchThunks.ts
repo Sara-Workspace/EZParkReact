@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { apiFetch } from '../../api/api';
+import { apiFetch, getErrorMessage } from '../../api/api';
 import type { SearchResult } from '../../types';
 
 export interface SearchParams {
@@ -23,8 +23,9 @@ export const searchSpots = createAsyncThunk<SearchResult[], SearchParams, { reje
       params.excludeIds.forEach((id) => query.append('excludeIds', String(id)));
 
       return await apiFetch<SearchResult[]>(`/ParkingSpots/search?${query.toString()}`);
-    } catch {
-      return rejectWithValue('החיפוש נכשל. נסי שוב.');
+    } catch (err) {
+      // ההודעה הברורה (למשל "אין חיבור לשרת...")
+      return rejectWithValue(getErrorMessage(err, 'החיפוש נכשל. נסי שוב.'));
     }
   }
 );
