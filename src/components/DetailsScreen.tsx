@@ -7,8 +7,8 @@ import { excludeSpot } from '../store/search/searchSlice';
 import type { ParkingSpot, HoldResult } from '../types';
 import SpotReviews from './SpotReviews';
 import Button from './Button';
+import ParkingTermsConsent from './ParkingTermsConsent';
 
-// כתובת הבסיס של השרת להצגת קבצים סטטיים מ-wwwroot
 const SERVER_ORIGIN = 'https://localhost:7036';
 
 function resolveSpotImageUrl(image?: string | null): string | null {
@@ -31,8 +31,8 @@ function DetailsScreen() {
   const [reserving, setReserving] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [imgFailed, setImgFailed] = useState<boolean>(false);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
 
-  // שליפת פרטי החניה הבודדת
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -57,10 +57,10 @@ function DetailsScreen() {
     };
   }, [id]);
 
-  // שמירת החניה ל-5 דקות (Hold) ומעבר למסך הניווט
   const handleReserve = async () => {
     if (spot === null || reserving) return;
 
+    setShowTermsModal(false);
     setReserving(true);
     setActionError(null);
     try {
@@ -102,7 +102,6 @@ function DetailsScreen() {
         </h3>
       </div>
 
-   {/* הצגת תמונת החניה שהעלה בעל החניה (אם קיימת) */}
       {imageUrl !== null && !imgFailed && (
         <div
           style={{
@@ -149,7 +148,7 @@ function DetailsScreen() {
           )}
           <Button
             label={reserving ? 'שומר את החניה...' : 'בחרי חניה וניווט ←'}
-            onClick={handleReserve}
+            onClick={() => setShowTermsModal(true)}
             background="#0a6cf0"
             color="white"
             fullWidth={true}
@@ -157,7 +156,34 @@ function DetailsScreen() {
         </div>
       </div>
 
-      {/* תגובות ודירוגים על החניה */}
+      {showTermsModal && (
+        <div
+          onClick={() => setShowTermsModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(10, 37, 64, 0.55)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: '100%', maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            <ParkingTermsConsent
+              spotAddress={`${spot.address}, ${spot.city} (חניה #${spot.spotId})`}
+              onConfirm={handleReserve}
+              onCancel={() => setShowTermsModal(false)}
+            />
+          </div>
+        </div>
+      )}
+
       <SpotReviews spotId={spot.spotId} />
     </div>
   );
