@@ -5,6 +5,7 @@ import { fetchMyParkings, updateParking } from '../store/parkings/parkingsThunks
 import type { ParkingSpot } from '../types';
 import InfoCard from './InfoCard';
 import Button from './Button';
+import OwnerSpotCheck from './OwnerSpotCheck'; // 🏠 בדיקת רכב זר בחניה (תמונה + AI)
 
 const MAX_HOURLY_PRICE = 50;
 
@@ -226,6 +227,9 @@ function MySpotsScreen() {
                     (מקסימום {MAX_HOURLY_PRICE} נק׳ לשעה)
                     </span>
                 </div>
+
+                {/* 🏠 בדיקת רכב זר בחניה. אחרי בדיקה מרעננים את החניות, כי היא יכולה להפוך חניה ללא זמינה */}
+                <OwnerSpotCheck spotId={spot.spotId} onChecked={() => dispatch(fetchMyParkings())} />
 
                 {spotFeedback !== null && (
                   <div

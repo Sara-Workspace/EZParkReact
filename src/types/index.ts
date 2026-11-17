@@ -43,3 +43,13 @@ export interface Destination {
   latitude: number;
   longitude: number;
 }
+
+// תשובת בדיקת חניה (api/SpotChecks)
+export interface SpotCheckResult {
+  spotId: number;
+  licensePlate: string;
+  result: 'Paying' | 'OwnerCar' | 'OtherDriver' | 'Unknown';
+  message: string;
+  finePoints: number;
+  spotAvailable: boolean;
+}

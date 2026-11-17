@@ -8,6 +8,7 @@ import { parseServerUtc } from '../utils/time';
 import ScreenSection from './ScreenSection';
 import StatCard from './StatCard';
 import Button from './Button';
+import AdminSpotCheck from './AdminSpotCheck'; // 👑 מצלמה מדומה + בדיקת רכב (AI)
 
 interface DriverItem {
   driverID?: number;
@@ -101,7 +102,8 @@ function AdminDashboard() {
     }
   };
 
-  if (loading) {
+  // מציגים "טוען" רק בטעינה הראשונה. אחרת, ריענון אחרי בדיקת רכב היה מוחק את התוצאה מהמסך
+  if (loading && spots.length === 0) {
     return <div style={{ padding: '24px', textAlign: 'center' }}>טוען נתוני ניהול...</div>;
   }
 
@@ -216,6 +218,21 @@ function AdminDashboard() {
         )}
       </ScreenSection>
 
+
+      {/* 👑 מצלמות ובדיקה: שורה לכל חניה (AdminSpotCheck) */}
+      <ScreenSection title="מצלמות ובדיקת רכבים בחניות 📷">
+        <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px 0' }}>
+          העלאת תמונה = מה שהמצלמה בחניה רואה עכשיו (רק נשמר). בדיקה = ה-AI קורא את הלוחית ומחליט אם הרכב משלם.
+        </p>
+        {spots.map((spot) => (
+          <AdminSpotCheck
+            key={spot.spotId}
+            spotId={spot.spotId}
+            title={`${spot.address}, ${spot.city}`}
+            onChecked={() => dispatch(fetchParkings())}
+          />
+        ))}
+      </ScreenSection>
 
       <ScreenSection title={`כלל ההזמנות במערכת (${reservations.length})`}>
         {sortedReservations.length > 0 ? (
