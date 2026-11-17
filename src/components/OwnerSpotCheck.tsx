@@ -32,12 +32,12 @@ function OwnerSpotCheck({ spotId, onChecked }: OwnerSpotCheckProps) {
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
-        borderTop: '1px solid #e2e8f0',
+        borderTop: '1px solid #dfe8f3',
         paddingTop: '14px',
         textAlign: 'right',
       }}
     >
-      <span style={{ fontSize: '14px', fontWeight: 700, color: '#334155' }}>
+      <span style={{ fontSize: '14px', fontWeight: 700, color: '#2a3b52' }}>
         🚗 יש רכב זר בחניה? צלמי אותו והמערכת תבדוק של מי הוא
       </span>
 
@@ -56,7 +56,7 @@ function OwnerSpotCheck({ spotId, onChecked }: OwnerSpotCheckProps) {
             fontWeight: 700,
             fontSize: '13px',
             cursor: image === null || loading ? 'not-allowed' : 'pointer',
-            background: image === null ? '#cbd5e1' : '#4f46e5',
+            background: image === null ? '#cfdbea' : '#0a6cf0',
             color: 'white',
           }}
         >

@@ -15,7 +15,7 @@ function Button({ label, background, color, onClick, fullWidth }: ButtonProps) {
         background: background,
         color: color,
         border: 'none',
-        borderRadius: '12px',
+        borderRadius: '999px',
         fontWeight: 700,
         cursor: 'pointer',
         width: fullWidth ? '100%' : 'auto',

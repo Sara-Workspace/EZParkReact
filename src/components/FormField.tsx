@@ -13,7 +13,7 @@ function FormField({ label, value }: FormFieldProps) {
           display: 'block',
           fontSize: '12px',
           fontWeight: 700,
-          color: '#334155',
+          color: '#2a3b52',
           marginBottom: '4px',
         }}
       >
@@ -22,7 +22,7 @@ function FormField({ label, value }: FormFieldProps) {
       <div
         style={{
           background: 'white',
-          border: '1px solid #cbd5e1',
+          border: '1px solid #cfdbea',
           borderRadius: '12px',
           padding: '8px 14px',
           fontSize: '12px',

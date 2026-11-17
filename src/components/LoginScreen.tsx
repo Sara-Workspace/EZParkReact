@@ -78,7 +78,7 @@ function LoginScreen() {
     } else if (resolvedRole === 'Owner') {
       navigate('/dashboard');
     } else {
-      navigate('/');
+      navigate('/home')
     }
     return true;
   };
@@ -148,7 +148,7 @@ function LoginScreen() {
     width: '100%',
     padding: '10px 12px',
     borderRadius: '12px',
-    border: '1px solid #cbd5e1',
+    border: '1px solid #cfdbea',
   };
 
   const labelStyle = {
@@ -165,8 +165,8 @@ function LoginScreen() {
           background: 'white',
           borderRadius: '24px',
           padding: '32px',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 10px 25px rgba(15, 23, 42, 0.08)',
+          border: '1px solid #dfe8f3',
+          boxShadow: '0 10px 25px rgba(10, 37, 64, 0.08)',
           display: 'flex',
           flexDirection: 'column',
           gap: '20px',
@@ -177,7 +177,7 @@ function LoginScreen() {
             style={{
               width: '56px',
               height: '56px',
-              background: '#4f46e5',
+              background: '#0a6cf0',
               borderRadius: '16px',
               margin: '0 auto 12px auto',
               display: 'flex',
@@ -189,10 +189,10 @@ function LoginScreen() {
           >
             🅿️
           </div>
-          <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0a2540', margin: '0 0 4px 0' }}>
             חניה בקליק • פארקי
           </h2>
-          <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+          <p style={{ fontSize: '12px', color: '#5a6b82', margin: 0 }}>
             {mode === 'login' ? 'יש להתחבר למערכת כדי להמשיך' : 'יצירת חשבון חדש במערכת'}
           </p>
         </div>
@@ -202,7 +202,7 @@ function LoginScreen() {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            background: '#f1f5f9',
+            background: '#eef4fb',
             padding: '4px',
             borderRadius: '12px',
             gap: '4px',
@@ -219,7 +219,7 @@ function LoginScreen() {
               fontSize: '13px',
               cursor: 'pointer',
               background: mode === 'login' ? 'white' : 'transparent',
-              color: mode === 'login' ? '#4f46e5' : '#64748b',
+              color: mode === 'login' ? '#0a6cf0' : '#5a6b82',
             }}
           >
             התחברות
@@ -235,7 +235,7 @@ function LoginScreen() {
               fontSize: '13px',
               cursor: 'pointer',
               background: mode === 'register' ? 'white' : 'transparent',
-              color: mode === 'register' ? '#4f46e5' : '#64748b',
+              color: mode === 'register' ? '#0a6cf0' : '#5a6b82',
             }}
           >
             הרשמת משתמש חדש
@@ -253,8 +253,8 @@ function LoginScreen() {
                     flex: 1,
                     padding: '8px',
                     borderRadius: '12px',
-                    border: registerRole === 'Driver' ? '2px solid #4f46e5' : '1px solid #cbd5e1',
-                    background: registerRole === 'Driver' ? '#eef2ff' : 'white',
+                    border: registerRole === 'Driver' ? '2px solid #0a6cf0' : '1px solid #cfdbea',
+                    background: registerRole === 'Driver' ? '#eaf3ff' : 'white',
                     fontWeight: 700,
                     cursor: 'pointer',
                   }}
@@ -268,7 +268,7 @@ function LoginScreen() {
                     flex: 1,
                     padding: '8px',
                     borderRadius: '12px',
-                    border: registerRole === 'Owner' ? '2px solid #059669' : '1px solid #cbd5e1',
+                    border: registerRole === 'Owner' ? '2px solid #059669' : '1px solid #cfdbea',
                     background: registerRole === 'Owner' ? '#ecfdf5' : 'white',
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -365,7 +365,7 @@ function LoginScreen() {
               style={inputStyle}
             />
              {mode !== 'login' && (
-              <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+              <span style={{ display: 'block', fontSize: '11px', color: '#5a6b82', marginTop: '4px' }}>
                 הסיסמה חייבת להכיל לפחות 8 תווים
               </span>
             )}
@@ -411,7 +411,7 @@ function LoginScreen() {
                   ? 'התחבר למערכת'
                   : 'צור חשבון חדש'
             }
-            background={mode === 'login' ? '#4f46e5' : '#059669'}
+            background={mode === 'login' ? '#0a6cf0' : '#059669'}
             color="white"
             fullWidth={true}
           />

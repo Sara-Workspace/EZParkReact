@@ -13,7 +13,7 @@ function HomeScreen() {
           style={{
             width: '80px',
             height: '80px',
-            background: '#4f46e5',
+            background: '#0a6cf0',
             borderRadius: '24px',
             margin: '0 auto 16px auto',
             display: 'flex',
@@ -26,10 +26,10 @@ function HomeScreen() {
         >
           🅿️
         </div>
-        <h2 style={{ fontSize: '30px', fontWeight: 900, color: '#0f172a' }}>
+        <h2 style={{ fontSize: '30px', fontWeight: 900, color: '#0a2540' }}>
           ברוכים הבאים לחניה בקליק • פארקי
         </h2>
-        <p style={{ fontSize: '14px', color: '#64748b', marginTop: '8px' }}>
+        <p style={{ fontSize: '14px', color: '#5a6b82', marginTop: '8px' }}>
           פלטפורמה חכמה למציאת חניות פרטיות והשכרת החניה שלך
         </p>
       </div>
@@ -45,7 +45,7 @@ function HomeScreen() {
         {/* כרטיס 1: חיפוש חניה */}
         <div
           style={{
-            background: '#0f172a',
+            background: '#0a2540',
             color: 'white',
             padding: '24px',
             borderRadius: '24px',
@@ -59,14 +59,14 @@ function HomeScreen() {
             <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
               אני מחפש חניה פנויה
             </h3>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12px', color: '#cfdbea', marginBottom: '24px' }}>
               אתר חניות פרטיות קרובות ליעד במפה, השווה מחירים והזמן בלחיצת כפתור.
             </p>
           </div>
           <Button
             label="התחל בחיפוש חניה במפה ←"
             onClick={() => navigate('/license-plate')}
-            background="#4f46e5"
+            background="#0a6cf0"
             color="white"
             fullWidth={true}
           />
@@ -75,7 +75,7 @@ function HomeScreen() {
         {/* כרטיס 2: הוספת חניה */}
         <div
           style={{
-            background: '#0f172a',
+            background: '#0a2540',
             color: 'white',
             padding: '24px',
             borderRadius: '24px',
@@ -90,7 +90,7 @@ function HomeScreen() {
             <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
               יש לי חניה להשכיר (פארקי)
             </h3>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12px', color: '#cfdbea', marginBottom: '24px' }}>
               הפוך את החניה הפרטית למקור הכנסה נוסף בזמנים שאינך משתמש בה.
             </p>
           </div>
@@ -107,8 +107,8 @@ function HomeScreen() {
       {/* אזור התחברות */}
       <div
         style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
+          background: '#f6faff',
+          border: '1px solid #dfe8f3',
           borderRadius: '16px',
           padding: '24px',
           display: 'flex',
@@ -118,18 +118,18 @@ function HomeScreen() {
         }}
       >
         <div>
-          <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>התחברות למערכת</h4>
-          <p style={{ fontSize: '12px', color: '#64748b' }}>
-            מחובר כעת: <span style={{ fontFamily: 'monospace', color: '#4f46e5' }}>{userEmail}</span>
+          <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0a2540' }}>התחברות למערכת</h4>
+          <p style={{ fontSize: '12px', color: '#5a6b82' }}>
+            מחובר כעת: <span style={{ fontFamily: 'monospace', color: '#0a6cf0' }}>{userEmail}</span>
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <Button label="החלף חשבון / התחבר מחדש" onClick={() => navigate('/login')} background="#0f172a" color="white" />
+          <Button label="החלף חשבון / התחבר מחדש" onClick={() => navigate('/login')} background="#0a2540" color="white" />
           <Button
             label="לוח בקרה והכנסות"
             onClick={() => navigate('/dashboard')}
-            background="#eef2ff"
-            color="#4338ca"
+            background="#eaf3ff"
+            color="#0856c2"
           />
         </div>
       </div>

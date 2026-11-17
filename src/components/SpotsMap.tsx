@@ -72,7 +72,7 @@ function SpotsMap({ destination, spots }: SpotsMapProps) {
       const priceLabel = `${spot.effectivePricePerHour} נק׳/שעה`;
       const spotIcon = L.divIcon({
         className: 'custom-spot-pin',
-        html: `<div style="background:#4f46e5;color:white;font-weight:700;font-size:11px;padding:4px 8px;border-radius:10px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;cursor:pointer;">🅿️ ${priceLabel}</div>`,
+        html: `<div style="background:#0a6cf0;color:white;font-weight:700;font-size:11px;padding:4px 8px;border-radius:10px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;cursor:pointer;">🅿️ ${priceLabel}</div>`,
         iconSize: [96, 28],
         iconAnchor: [48, 14],
       });
@@ -85,15 +85,15 @@ function SpotsMap({ destination, spots }: SpotsMapProps) {
       popupDiv.style.minWidth = '160px';
       popupDiv.innerHTML = `
         <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${spot.address}, ${spot.city}</div>
-        <div style="font-size:12px;color:#475569;margin-bottom:4px;">מחיר: <strong>${spot.effectivePricePerHour} נק׳/שעה</strong></div>
-        <div style="font-size:11px;color:#64748b;margin-bottom:8px;">${spot.evCharger ? '⚡ כולל עמדת טעינה' : 'חניה רגילה'}</div>
+        <div style="font-size:12px;color:#44566e;margin-bottom:4px;">מחיר: <strong>${spot.effectivePricePerHour} נק׳/שעה</strong></div>
+        <div style="font-size:11px;color:#5a6b82;margin-bottom:8px;">${spot.evCharger ? '⚡ כולל עמדת טעינה' : 'חניה רגילה'}</div>
       `;
 
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = 'לפרטי החניה ←';
       btn.style.cssText =
-        'width:100%;padding:6px 10px;background:#4f46e5;color:white;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;';
+        'width:100%;padding:6px 10px;background:#0a6cf0;color:white;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;';
       btn.onclick = () => navigate(`/parking/${spot.spotId}`);
       popupDiv.appendChild(btn);
 
@@ -113,7 +113,7 @@ function SpotsMap({ destination, spots }: SpotsMapProps) {
       style={{
         borderRadius: '16px',
         overflow: 'hidden',
-        border: '1px solid #cbd5e1',
+        border: '1px solid #cfdbea',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       }}
     >

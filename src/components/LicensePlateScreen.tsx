@@ -27,10 +27,10 @@ function LicensePlateScreen() {
           <p style={{ fontSize: '14px', color: '#dc2626', fontWeight: 700, margin: '0 0 16px 0' }}>
             נגמרו לך הנקודות למימוש לחודש זה.
           </p>
-          <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0' }}>
+          <p style={{ fontSize: '13px', color: '#5a6b82', margin: '0 0 16px 0' }}>
             הנקודות מתחדשות פעם בחודש. עד אז אפשר להרוויח נקודות על ידי השכרת חניה.
           </p>
-          <Button label="חזרה לדף הבית" onClick={() => navigate('/')} background="#4f46e5" color="white" />
+          <Button label="חזרה לדף הבית" onClick={() => navigate('/home')} background="#0a6cf0" color="white" />
         </ScreenSection>
       </div>
     );
@@ -89,7 +89,7 @@ function LicensePlateScreen() {
 
       <ScreenSection title="באיזה רכב תחני היום?">
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <label htmlFor="license-plate" style={{ fontSize: '12px', fontWeight: 700, color: '#475569' }}>
+          <label htmlFor="license-plate" style={{ fontSize: '12px', fontWeight: 700, color: '#44566e' }}>
             מספר רישוי
           </label>
           <input
@@ -102,7 +102,7 @@ function LicensePlateScreen() {
               width: '100%',
               padding: '10px 12px',
               borderRadius: '12px',
-              border: '1px solid #cbd5e1',
+              border: '1px solid #cfdbea',
               boxSizing: 'border-box',
             }}
           />
@@ -113,7 +113,7 @@ function LicensePlateScreen() {
 
           <Button
             label={saving ? 'שומר...' : 'המשך לחיפוש חניה ←'}
-            background="#4f46e5"
+            background="#0a6cf0"
             color="white"
             fullWidth={true}
           />

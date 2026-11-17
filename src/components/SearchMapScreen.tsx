@@ -149,8 +149,8 @@ function SearchMapScreen() {
       <form
         onSubmit={handleSearch}
         style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
+          background: '#f6faff',
+          border: '1px solid #dfe8f3',
           borderRadius: '16px',
           padding: '16px',
           display: 'flex',
@@ -168,7 +168,7 @@ function SearchMapScreen() {
             flex: 1,
             padding: '10px 12px',
             borderRadius: '12px',
-            border: '1px solid #cbd5e1',
+            border: '1px solid #cfdbea',
             boxSizing: 'border-box',
           }}
         />
@@ -177,7 +177,7 @@ function SearchMapScreen() {
             <option key={suggestion} value={suggestion} />
           ))}
         </datalist>
-        <Button label={geoLoading ? 'מחפש כתובת...' : 'חפשי חניה'} background="#4f46e5" color="white" />
+        <Button label={geoLoading ? 'מחפש כתובת...' : 'חפשי חניה'} background="#0a6cf0" color="white" />
       </form>
 
       {geoError !== null && (
@@ -186,7 +186,7 @@ function SearchMapScreen() {
 
       {destination !== null && (
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: '#64748b' }}>מיון:</span>
+          <span style={{ fontSize: '12px', color: '#5a6b82' }}>מיון:</span>
           {SORT_OPTIONS.map((option) => (
             <button
               key={option.value}
@@ -198,9 +198,9 @@ function SearchMapScreen() {
                 fontSize: '12px',
                 fontWeight: 700,
                 cursor: 'pointer',
-                border: sortBy === option.value ? 'none' : '1px solid #cbd5e1',
-                background: sortBy === option.value ? '#4f46e5' : 'white',
-                color: sortBy === option.value ? 'white' : '#334155',
+                border: sortBy === option.value ? 'none' : '1px solid #cfdbea',
+                background: sortBy === option.value ? '#0a6cf0' : 'white',
+                color: sortBy === option.value ? 'white' : '#2a3b52',
               }}
             >
               {option.label}
@@ -210,7 +210,7 @@ function SearchMapScreen() {
       )}
 
       {destination === null && (
-        <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+        <div style={{ padding: '24px', textAlign: 'center', color: '#5a6b82' }}>
           הזיני כתובת יעד כדי לראות חניות פנויות בסביבה.
         </div>
       )}
@@ -224,7 +224,7 @@ function SearchMapScreen() {
       )}
 
       {destination !== null && !loading && error === null && results.length === 0 && (
-        <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+        <div style={{ padding: '24px', textAlign: 'center', color: '#5a6b82' }}>
           לא נמצאו חניות פנויות באזור הזה.
         </div>
       )}

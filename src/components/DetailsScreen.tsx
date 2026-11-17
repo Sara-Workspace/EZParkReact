@@ -95,8 +95,8 @@ function DetailsScreen() {
 
   return (
     <div style={{ maxWidth: '896px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button label="← חזרה לרשימה" onClick={() => navigate('/search')} background="#e2e8f0" color="#0f172a" />
+      <div style={{ background: '#f6faff', border: '1px solid #dfe8f3', borderRadius: '16px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Button label="← חזרה לרשימה" onClick={() => navigate('/search')} background="#dfe8f3" color="#0a2540" />
         <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>
           {spot.address}, {spot.city} (חניה #{spot.spotId})
         </h3>
@@ -106,8 +106,8 @@ function DetailsScreen() {
       {imageUrl !== null && !imgFailed && (
         <div
           style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
+            background: '#f6faff',
+            border: '1px solid #dfe8f3',
             borderRadius: '16px',
             padding: '16px',
             display: 'flex',
@@ -133,15 +133,15 @@ function DetailsScreen() {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ background: '#f6faff', border: '1px solid #dfe8f3', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 style={{ fontSize: '14px', fontWeight: 700, margin: 0 }}>פרטי החניה והמחיר</h4>
           <p style={{ fontSize: '14px', margin: 0 }}><strong>מחיר לשעה:</strong> {spot.basePricePerHour} נק׳</p>
           <p style={{ fontSize: '14px', margin: 0 }}><strong>מחיר לדקה:</strong> {pricePerMin} נק׳</p>
           <p style={{ fontSize: '14px', margin: 0 }}><strong>עמדת טעינה:</strong> {spot.evCharger ? 'קיימת ⚡' : 'ללא'}</p>
         </div>
 
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px' }}>
-          <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+        <div style={{ background: '#f6faff', border: '1px solid #dfe8f3', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px' }}>
+          <p style={{ fontSize: '12px', color: '#5a6b82', margin: 0 }}>
             החניה תישמר עבורך ל-5 דקות. החיוב יתחיל רק כשתלחצי "חניתי".
           </p>
           {actionError !== null && (
@@ -150,7 +150,7 @@ function DetailsScreen() {
           <Button
             label={reserving ? 'שומר את החניה...' : 'בחרי חניה וניווט ←'}
             onClick={handleReserve}
-            background="#4f46e5"
+            background="#0a6cf0"
             color="white"
             fullWidth={true}
           />

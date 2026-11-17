@@ -36,11 +36,11 @@ function Layout() {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userId');
     dispatch(logout());
-    navigate('/login');
+    navigate('/');
   };
 
   const getNavLinkStyle = ({ isActive }: { isActive: boolean }) => ({
-    color: isActive ? '#38bdf8' : 'white',
+    color: isActive ? '#7cc0ff' : 'white',
     textDecoration: 'none',
     fontWeight: isActive ? 700 : 400,
   });
@@ -49,7 +49,7 @@ function Layout() {
     <div>
       <header
         style={{
-          background: '#0f172a',
+          background: '#0a2540',
           color: 'white',
           padding: '16px 24px',
           display: 'flex',
@@ -58,10 +58,10 @@ function Layout() {
         }}
       >
         <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>
-          חניה בקליק • פארקי
+          EZPark • חניה בקליק
         </h1>
         <nav style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <NavLink to="/" style={getNavLinkStyle}>
+          <NavLink to="/home" style={getNavLinkStyle}>
             בית
           </NavLink>
           <NavLink to="/license-plate" style={getNavLinkStyle}>
@@ -95,7 +95,7 @@ function Layout() {
               to="/profile"
               style={({ isActive }) => ({
                 fontSize: '13px',
-                color: isActive ? '#38bdf8' : '#cbd5e1',
+                color: isActive ? '#7cc0ff' : '#cfdbea',
                 textDecoration: 'none',
                 fontWeight: 700,
               })}
@@ -110,7 +110,7 @@ function Layout() {
               type="button"
               onClick={handleLogout}
               style={{
-                background: '#334155',
+                background: '#2a3b52',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',

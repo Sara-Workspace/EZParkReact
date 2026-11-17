@@ -50,8 +50,8 @@ function SpotReviews({ spotId }: SpotReviewsProps) {
   return (
     <div
       style={{
-        background: '#f8fafc',
-        border: '1px solid #e2e8f0',
+        background: '#f6faff',
+        border: '1px solid #dfe8f3',
         borderRadius: '16px',
         padding: '16px',
         display: 'flex',
@@ -69,18 +69,18 @@ function SpotReviews({ spotId }: SpotReviewsProps) {
       </div>
 
       {reviews.length === 0 ? (
-        <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>עדיין אין תגובות על החניה הזו.</p>
+        <p style={{ fontSize: '12px', color: '#5a6b82', margin: 0 }}>עדיין אין תגובות על החניה הזו.</p>
       ) : (
         reviews.map((review) => (
           <div
             key={review.reviewID}
-            style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '10px 12px' }}
+            style={{ background: 'white', border: '1px solid #dfe8f3', borderRadius: '12px', padding: '10px 12px' }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#5a6b82' }}>
               <span>{'⭐'.repeat(review.rating)}</span>
               <span>{new Date(parseServerUtc(review.createdAt)).toLocaleDateString('he-IL')}</span>
             </div>
-            <p style={{ fontSize: '13px', margin: '6px 0 0 0', color: '#0f172a' }}>{review.comment}</p>
+            <p style={{ fontSize: '13px', margin: '6px 0 0 0', color: '#0a2540' }}>{review.comment}</p>
           </div>
         ))
       )}

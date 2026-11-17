@@ -121,14 +121,14 @@ function AdminDashboard() {
 
   const thStyle: CSSProperties = {
     padding: '10px 12px',
-    borderBottom: '2px solid #e2e8f0',
-    color: '#475569',
+    borderBottom: '2px solid #dfe8f3',
+    color: '#44566e',
     fontWeight: 700,
   };
 
   const tdStyle: CSSProperties = {
     padding: '10px 12px',
-    borderBottom: '1px solid #f1f5f9',
+    borderBottom: '1px solid #eef4fb',
   };
     const sortedReservations = [...reservations].sort((a, b) => b.reservationID - a.reservationID);
 
@@ -152,14 +152,14 @@ function AdminDashboard() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+      <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#0a2540', margin: 0 }}>
         לוח ניהול מערכת (Admin) 🛡️
       </h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-        <StatCard title="סה״כ נהגים רשומים" value={`${drivers.length}`} valueColor="#4f46e5" />
+        <StatCard title="סה״כ נהגים רשומים" value={`${drivers.length}`} valueColor="#0a6cf0" />
         <StatCard title="סה״כ בעלי חניות" value={`${owners.length}`} valueColor="#059669" />
-        <StatCard title="חניות במערכת" value={`${spots.length}`} valueColor="#0f172a" />
+        <StatCard title="חניות במערכת" value={`${spots.length}`} valueColor="#0a2540" />
       </div>
 
       {actionError !== null && (
@@ -197,8 +197,8 @@ function AdminDashboard() {
                       <Button
                         label={spot.isActive ? 'סמן כלא זמינה' : 'סמן כזמינה'}
                         onClick={() => handleToggleActive(spot)}
-                        background="#e0e7ff"
-                        color="#4338ca"
+                        background="#d4e6ff"
+                        color="#0856c2"
                       />
                     </td>
                     <td style={tdStyle}>
@@ -215,14 +215,14 @@ function AdminDashboard() {
             </table>
           </div>
         ) : (
-          <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>אין חניות רשומות במערכת.</p>
+          <p style={{ fontSize: '13px', color: '#5a6b82', margin: 0 }}>אין חניות רשומות במערכת.</p>
         )}
       </ScreenSection>
 
 
       {/* 👑 מצלמות ובדיקה: שורה לכל חניה (AdminSpotCheck) */}
       <ScreenSection title="מצלמות ובדיקת רכבים בחניות 📷">
-        <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px 0' }}>
+        <p style={{ fontSize: '13px', color: '#5a6b82', margin: '0 0 8px 0' }}>
           העלאת תמונה = מה שהמצלמה בחניה רואה עכשיו (רק נשמר). בדיקה = ה-AI קורא את הלוחית ומחליט אם הרכב משלם.
         </p>
         {spots.map((spot) => (
@@ -289,7 +289,7 @@ function AdminDashboard() {
             </table>
           </div>
         ) : (
-          <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>אין הזמנות במערכת.</p>
+          <p style={{ fontSize: '13px', color: '#5a6b82', margin: 0 }}>אין הזמנות במערכת.</p>
         )}
       </ScreenSection>
 
@@ -326,7 +326,7 @@ function AdminDashboard() {
             </table>
           </div>
         ) : (
-          <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>אין בעלי חניות רשומים.</p>
+          <p style={{ fontSize: '13px', color: '#5a6b82', margin: 0 }}>אין בעלי חניות רשומים.</p>
         )}
       </ScreenSection>
 
@@ -364,7 +364,7 @@ function AdminDashboard() {
             </table>
           </div>
         ) : (
-          <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>אין נהגים רשומים.</p>
+          <p style={{ fontSize: '13px', color: '#5a6b82', margin: 0 }}>אין נהגים רשומים.</p>
         )}
       </ScreenSection>
     </div>

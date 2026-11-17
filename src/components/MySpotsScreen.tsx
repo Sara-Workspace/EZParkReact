@@ -142,15 +142,15 @@ function MySpotsScreen() {
     <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: '#0f172a' }}>החניות שלי 🅿️</h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#475569' }}>
+          <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: '#0a2540' }}>החניות שלי 🅿️</h2>
+          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#44566e' }}>
             ניהול זמינות ועריכת פרטי חניה (עד {MAX_HOURLY_PRICE} נק׳/שעה)
           </p>
         </div>
         <Button
           label="+ הוספת חניה חדשה"
           onClick={() => navigate('/add-parking')}
-          background="#4f46e5"
+          background="#0a6cf0"
           color="white"
         />
       </div>
@@ -163,13 +163,13 @@ function MySpotsScreen() {
 
       {mySpots.length === 0 ? (
         <InfoCard title="עדיין אין לך חניות רשומות">
-          <p style={{ fontSize: '14px', color: '#475569', margin: '12px 0' }}>
+          <p style={{ fontSize: '14px', color: '#44566e', margin: '12px 0' }}>
             הוסיפי חניה פרטית כדי להתחיל לצבור נקודות מנהגים שחונים אצלך.
           </p>
           <Button
             label="הוספת חניה ראשונה"
             onClick={() => navigate('/add-parking')}
-            background="#0f172a"
+            background="#0a2540"
             color="white"
           />
         </InfoCard>
@@ -191,13 +191,13 @@ function MySpotsScreen() {
                         borderRadius: '999px',
                         fontSize: '12px',
                         fontWeight: 700,
-                        background: spot.isActive ? '#dcfce7' : '#f1f5f9',
-                        color: spot.isActive ? '#166534' : '#475569',
+                        background: spot.isActive ? '#dcfce7' : '#eef4fb',
+                        color: spot.isActive ? '#166534' : '#44566e',
                       }}
                     >
                       {spot.isActive ? '● זמינה להזמנות' : '○ לא זמינה'}
                     </span>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#2a3b52' }}>
                       {spot.basePricePerHour} נק׳/שעה
                     </span>
                     {spot.evCharger && (
@@ -213,12 +213,12 @@ function MySpotsScreen() {
                       style={{
                         padding: '8px 14px',
                         borderRadius: '10px',
-                        border: '1px solid #cbd5e1',
+                        border: '1px solid #cfdbea',
                         fontWeight: 700,
                         fontSize: '13px',
                         cursor: 'pointer',
                         background: 'white',
-                        color: '#0f172a',
+                        color: '#0a2540',
                       }}
                     >
                       {isEditing ? 'ביטול עריכה' : '✏️ עריכת פרטים'}
@@ -248,8 +248,8 @@ function MySpotsScreen() {
                 {isEditing && (
                   <div
                     style={{
-                      background: '#f8fafc',
-                      border: '1px solid #cbd5e1',
+                      background: '#f6faff',
+                      border: '1px solid #cfdbea',
                       borderRadius: '12px',
                       padding: '16px',
                       display: 'flex',
@@ -266,7 +266,7 @@ function MySpotsScreen() {
                           type="text"
                           value={editDraft.address}
                           onChange={(e) => setEditDraft((d) => ({ ...d, address: e.target.value }))}
-                          style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cfdbea', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div>
@@ -277,7 +277,7 @@ function MySpotsScreen() {
                           type="text"
                           value={editDraft.city}
                           onChange={(e) => setEditDraft((d) => ({ ...d, city: e.target.value }))}
-                          style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cfdbea', boxSizing: 'border-box' }}
                         />
                       </div>
                     </div>
@@ -294,7 +294,7 @@ function MySpotsScreen() {
                           step="0.5"
                           value={editDraft.basePricePerHour}
                           onChange={(e) => setEditDraft((d) => ({ ...d, basePricePerHour: e.target.value }))}
-                          style={{ width: '110px', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                          style={{ width: '110px', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cfdbea' }}
                         />
                       </div>
 
@@ -320,7 +320,7 @@ function MySpotsScreen() {
                           fontWeight: 700,
                           fontSize: '13px',
                           cursor: isSaving ? 'not-allowed' : 'pointer',
-                          background: '#4f46e5',
+                          background: '#0a6cf0',
                           color: 'white',
                         }}
                       >

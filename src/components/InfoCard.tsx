@@ -9,14 +9,14 @@ function InfoCard({ title, children }: InfoCardProps) {
   return (
     <div
       style={{
-        background: '#f8fafc',
-        border: '1px solid #e2e8f0',
+        background: '#f6faff',
+        border: '1px solid #dfe8f3',
         borderRadius: '16px',
         padding: '20px',
         textAlign: 'center',
       }}
     >
-      <span style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#94a3b8' }}>
+      <span style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#8fa1b8' }}>
         {title}
       </span>
       {children}

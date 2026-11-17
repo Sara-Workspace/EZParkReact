@@ -126,14 +126,14 @@ function DashboardScreen() {
         <StatCard
           title="הזמנות פעילות כרגע"
           value={`${activeCount}`}
-          valueColor="#4f46e5"
+          valueColor="#0a6cf0"
         />
       </div>
 
       <div
         style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
+          background: '#f6faff',
+          border: '1px solid #dfe8f3',
           borderRadius: '16px',
           padding: '24px',
           display: 'flex',
@@ -141,12 +141,12 @@ function DashboardScreen() {
           gap: '12px',
         }}
       >
-        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0a2540', margin: 0 }}>
           הפעילות האחרונה שלי ({reservations.length})
         </h4>
 
         {recentReservations.length === 0 ? (
-          <p style={{ fontSize: '13px', color: '#64748b', margin: '8px 0 0 0' }}>
+          <p style={{ fontSize: '13px', color: '#5a6b82', margin: '8px 0 0 0' }}>
             עדיין אין השכרות או חניות להצגה.
           </p>
         ) : (

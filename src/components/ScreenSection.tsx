@@ -19,10 +19,10 @@ function ScreenSection({ title, children }: ScreenSectionProps) {
         style={{
           fontSize: '14px',
           fontWeight: 700,
-          color: '#4f46e5',
+          color: '#0a6cf0',
           marginBottom: '16px',
           paddingBottom: '8px',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid #dfe8f3',
         }}
       >
         {title}

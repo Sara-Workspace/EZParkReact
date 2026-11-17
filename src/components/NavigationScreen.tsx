@@ -118,8 +118,8 @@ function NavigationScreen() {
     padding: '10px 16px',
     borderRadius: '12px',
     background: 'white',
-    border: '1px solid #cbd5e1',
-    color: '#0f172a',
+    border: '1px solid #cfdbea',
+    color: '#0a2540',
     fontWeight: 700,
     fontSize: '12px',
     textDecoration: 'none',
@@ -136,10 +136,10 @@ function NavigationScreen() {
           textAlign: 'center',
         }}
       >
-        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0a2540', margin: 0 }}>
           {expired ? 'השמירה פגה ⏰' : 'החניה שוריינה עבורך! 🎉'}
         </h3>
-        <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#475569' }}>
+        <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#44566e' }}>
           {spot.address}, {spot.city}
         </p>
       </div>
@@ -151,7 +151,7 @@ function NavigationScreen() {
               fontSize: '36px',
               fontWeight: 900,
               fontFamily: 'monospace',
-              color: expired ? '#dc2626' : '#4f46e5',
+              color: expired ? '#dc2626' : '#0a6cf0',
               margin: '12px 0',
             }}
           >
@@ -180,8 +180,8 @@ function NavigationScreen() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div
             style={{
-              background: '#eef2ff',
-              color: '#3730a3',
+              background: '#eaf3ff',
+              color: '#0a3d8f',
               padding: '16px',
               borderRadius: '12px',
               fontSize: '14px',
@@ -191,7 +191,7 @@ function NavigationScreen() {
           >
             תודה על הדיווח! 🙏 בדקנו את החניה וטיפלנו בזה. בואי נמצא לך חניה אחרת
           </div>
-          <Button label="חיפוש חניה אחרת 🔎" onClick={goSearchWithoutThisSpot} background="#4f46e5" color="white" />
+          <Button label="חיפוש חניה אחרת 🔎" onClick={goSearchWithoutThisSpot} background="#0a6cf0" color="white" />
         </div>
       ) : (
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -209,7 +209,7 @@ function NavigationScreen() {
           background="#d97706"
           color="white"
         />
-        <Button label="התחרטתי" onClick={handleRegret} background="#e2e8f0" color="#0f172a" />
+        <Button label="התחרטתי" onClick={handleRegret} background="#dfe8f3" color="#0a2540" />
       </div>
       )}
     </div>

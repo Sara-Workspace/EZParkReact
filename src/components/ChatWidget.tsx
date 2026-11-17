@@ -43,7 +43,7 @@ function ChatWidget() {
           height: '60px',
           borderRadius: '50%',
           border: 'none',
-          background: '#4f46e5',
+          background: '#0a6cf0',
           color: 'white',
           fontSize: '28px',
           cursor: 'pointer',
@@ -77,7 +77,7 @@ function ChatWidget() {
       {/* כותרת: שם, "שיחה חדשה" וסגירה */}
       <div
         style={{
-          background: '#0f172a',
+          background: '#0a2540',
           color: 'white',
           padding: '12px 16px',
           display: 'flex',
@@ -92,7 +92,7 @@ function ChatWidget() {
             onClick={startNewChat}
             disabled={loading}
             style={{
-              background: '#334155',
+              background: '#2a3b52',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -122,12 +122,12 @@ function ChatWidget() {
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column-reverse',
-          background: '#f8fafc',
+          background: '#f6faff',
         }}
       >
         <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {messages.length === 0 && (
-            <p style={{ color: '#64748b', fontSize: '14px', textAlign: 'center', marginTop: '24px' }}>
+            <p style={{ color: '#5a6b82', fontSize: '14px', textAlign: 'center', marginTop: '24px' }}>
               שלום! כתבו לי איפה אתם צריכים חניה, למשל:
               <br />
               "אני צריך חניה ליד הרצל 10 בתל אביב"
@@ -152,9 +152,9 @@ function ChatWidget() {
                   fontSize: '14px',
                   lineHeight: 1.5,
                   whiteSpace: 'pre-wrap', // שומר על ירידות השורה מהתשובה
-                  background: message.role === 'user' ? '#4f46e5' : 'white',
-                  color: message.role === 'user' ? 'white' : '#0f172a',
-                  border: message.role === 'user' ? 'none' : '1px solid #e2e8f0',
+                  background: message.role === 'user' ? '#0a6cf0' : 'white',
+                  color: message.role === 'user' ? 'white' : '#0a2540',
+                  border: message.role === 'user' ? 'none' : '1px solid #dfe8f3',
                 }}
               >
                 {/* הודעת AI ריקה = התשובה עוד לא התחילה להגיע */}
@@ -172,9 +172,9 @@ function ChatWidget() {
                       maxWidth: '85%',
                       padding: '8px 12px',
                       borderRadius: '10px',
-                      border: '1px solid #c7d2fe',
-                      background: '#eef2ff',
-                      color: '#3730a3',
+                      border: '1px solid #b3d2ff',
+                      background: '#eaf3ff',
+                      color: '#0a3d8f',
                       fontSize: '13px',
                       fontWeight: 700,
                       textAlign: 'right',
@@ -197,7 +197,7 @@ function ChatWidget() {
       {/* תיבת הכתיבה (Controlled Input) */}
       <form
         onSubmit={handleSubmit}
-        style={{ display: 'flex', gap: '8px', padding: '12px', borderTop: '1px solid #e2e8f0' }}
+        style={{ display: 'flex', gap: '8px', padding: '12px', borderTop: '1px solid #dfe8f3' }}
       >
         <input
           type="text"
@@ -210,7 +210,7 @@ function ChatWidget() {
             flex: 1,
             padding: '10px 12px',
             borderRadius: '10px',
-            border: '1px solid #cbd5e1',
+            border: '1px solid #cfdbea',
             fontSize: '14px',
             fontFamily: 'inherit',
           }}
@@ -222,7 +222,7 @@ function ChatWidget() {
             padding: '0 16px',
             borderRadius: '10px',
             border: 'none',
-            background: loading || input.trim() === '' ? '#94a3b8' : '#4f46e5',
+            background: loading || input.trim() === '' ? '#8fa1b8' : '#0a6cf0',
             color: 'white',
             fontWeight: 700,
             cursor: loading ? 'wait' : 'pointer',

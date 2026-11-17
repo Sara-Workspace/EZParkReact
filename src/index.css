@@ -3,11 +3,18 @@
 }
 
 body {
-  font-family: 'Heebo', sans-serif;
-  background: #f1f5f9;
+  margin: 0;
+  font-family: 'Assistant', 'Heebo', system-ui, sans-serif;
+  background: #f6faff;
+  color: #14263d;
   direction: rtl;
 }
 
-button {
+h1, h2, h3 {
+  font-family: 'Rubik', 'Assistant', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+button, input, select, textarea {
   font-family: inherit;
 }

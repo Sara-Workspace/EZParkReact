@@ -43,10 +43,10 @@ function AdminSpotCheck({ spotId, title, onChecked }: AdminSpotCheckProps) {
         flexDirection: 'column',
         gap: '10px',
         padding: '14px 0',
-        borderBottom: '1px solid #f1f5f9',
+        borderBottom: '1px solid #eef4fb',
       }}
     >
-      <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+      <span style={{ fontSize: '14px', fontWeight: 700, color: '#0a2540' }}>
         #{spotId} · {title}
       </span>
 
@@ -58,7 +58,7 @@ function AdminSpotCheck({ spotId, title, onChecked }: AdminSpotCheckProps) {
           type="button"
           onClick={handleUpload}
           disabled={image === null || loading}
-          style={{ ...buttonStyle, background: image === null ? '#cbd5e1' : '#0f172a', color: 'white' }}
+          style={{ ...buttonStyle, background: image === null ? '#cfdbea' : '#0a2540', color: 'white' }}
         >
           📷 העלאת תמונת מצלמה
         </button>
@@ -68,7 +68,7 @@ function AdminSpotCheck({ spotId, title, onChecked }: AdminSpotCheckProps) {
           type="button"
           onClick={adminCheck}
           disabled={loading}
-          style={{ ...buttonStyle, background: '#4f46e5', color: 'white' }}
+          style={{ ...buttonStyle, background: '#0a6cf0', color: 'white' }}
         >
           {loading ? 'בודק...' : '🔍 בדיקה'}
         </button>

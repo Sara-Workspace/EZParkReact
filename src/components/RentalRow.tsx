@@ -28,7 +28,7 @@ function RentalRow({
         background: 'white',
         padding: '14px',
         borderRadius: '12px',
-        border: '1px solid #e2e8f0',
+        border: '1px solid #dfe8f3',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -53,13 +53,13 @@ function RentalRow({
           {isIncome ? '🏠' : '🚗'}
         </div>
         <div>
-          <h5 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+          <h5 style={{ fontSize: '13px', fontWeight: 700, color: '#0a2540', margin: 0 }}>
             {plateNumber}{' '}
-            <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: '#5a6b82' }}>
               ({isIncome ? 'השכרת חניה שלי' : 'חניתי אצל אחר'})
             </span>
           </h5>
-          <p style={{ fontSize: '11px', color: '#64748b', margin: '3px 0 0 0' }}>
+          <p style={{ fontSize: '11px', color: '#5a6b82', margin: '3px 0 0 0' }}>
             {timeAgo} • {durationMin} דקות • {type}
           </p>
         </div>
@@ -75,7 +75,7 @@ function RentalRow({
         >
           {sign}{totalEarnings} נק׳
         </span>
-        <span style={{ display: 'block', fontSize: '10px', color: '#94a3b8' }}>
+        <span style={{ display: 'block', fontSize: '10px', color: '#8fa1b8' }}>
           {statusLabel}
         </span>
       </div>

@@ -77,7 +77,7 @@ function AddParkingScreen() {
     width: '100%',
     padding: '10px 12px',
     borderRadius: '12px',
-    border: '1px solid #cbd5e1',
+    border: '1px solid #cfdbea',
     background: 'white',
     fontSize: '13px',
   };
@@ -86,7 +86,7 @@ function AddParkingScreen() {
     display: 'block',
     fontSize: '12px',
     fontWeight: 700,
-    color: '#334155',
+    color: '#2a3b52',
     marginBottom: '4px',
   };
 
@@ -101,14 +101,14 @@ function AddParkingScreen() {
         gap: '20px',
       }}
     >
-      <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+      <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0a2540', margin: 0 }}>
         הוספת חניה פרטית להשכרה 🅿️
       </h3>
 
       <div
         style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
+          background: '#f6faff',
+          border: '1px solid #dfe8f3',
           borderRadius: '16px',
           padding: '24px',
           display: 'flex',
@@ -163,7 +163,7 @@ function AddParkingScreen() {
     onChange={(e: ChangeEvent<HTMLInputElement>) => setBasePricePerHour(e.target.value)}
     style={inputStyle}
   />
-  <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+  <span style={{ display: 'block', fontSize: '11px', color: '#5a6b82', marginTop: '4px' }}>
     מחיר מקסימלי: <strong>50 נקודות לשעה</strong> • תעריף מחושב לנהג:{' '}
     <strong>{pricePerMinutePreview} נק׳ לדקה</strong>
   </span>
@@ -219,7 +219,7 @@ function AddParkingScreen() {
             gap: '8px',
             fontSize: '13px',
             fontWeight: 700,
-            color: '#0f172a',
+            color: '#0a2540',
             cursor: 'pointer',
           }}
         >

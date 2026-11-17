@@ -9,7 +9,7 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   const token = localStorage.getItem('token');
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/welcome" replace />;
   }
 
   return <>{children}</>;

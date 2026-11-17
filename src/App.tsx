@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import LandingScreen from './components/LandingScreen';
 import HomeScreen from './components/HomeScreen';
 import LicensePlateScreen from './components/LicensePlateScreen';
 import SearchMapScreen from './components/SearchMapScreen';
@@ -19,10 +20,13 @@ import ProfileScreen from './components/ProfileScreen';
 function App() {
   return (
     <Routes>
-     {/* מסך הכניסה והרשמה - פתוח לכולם וללא תפריט עליון */}
+      {/* דף הפתיחה של האתר - תמיד נגיש ראשון */}
+      <Route path="/" element={<LandingScreen />} />
+
+      {/* מסך הכניסה והרשמה - פתוח לכולם וללא תפריט עליון */}
       <Route path="/login" element={<LoginScreen />} />
 
-      {/* כל שאר המסכים מוגנים ומחייבים התחברות */}
+      {/* כל מסכי האפליקציה הפנימיים מוגנים ומחייבים התחברות */}
       <Route
         element={
           <ProtectedRoute>
@@ -30,7 +34,7 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<HomeScreen />} />
+        <Route path="/home" element={<HomeScreen />} />
         <Route path="/license-plate" element={<LicensePlateScreen />} />
         <Route path="/search" element={<SearchMapScreen />} />
         <Route path="/parking/:id" element={<DetailsScreen />} />
@@ -38,7 +42,6 @@ function App() {
         <Route path="/add-parking" element={<AddParkingScreen />} />
         <Route path="/my-spots" element={<MySpotsScreen />} />
         <Route path="/dashboard" element={<DashboardScreen />} />
-        <Route path="/navigation" element={<NavigationScreen />} />
         <Route path="/parking-session" element={<ParkingSessionScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
         <Route

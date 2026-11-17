@@ -96,7 +96,7 @@ function ParkingSessionScreen() {
     return <div style={{ padding: '24px', textAlign: 'center' }}>טוען את החניה הפעילה...</div>;
   }
   if (reservation === null) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   const startMs = parseServerUtc(reservation.startTime);
@@ -156,7 +156,7 @@ function ParkingSessionScreen() {
   const handleFinish = () => {
     dispatch(clearSession());
     dispatch(clearSearch());
-    navigate('/');
+    navigate('/home');
   };
 
   // ===== מסך סיכום: החניה הסתיימה =====
@@ -168,10 +168,10 @@ function ParkingSessionScreen() {
     return (
       <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '24px', borderRadius: '16px', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0a2540', margin: 0 }}>
             החניה הסתיימה בהצלחה ✅
           </h3>
-          <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#475569' }}>{placeName}</p>
+          <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#44566e' }}>{placeName}</p>
         </div>
 
         <InfoCard title="פרטי ההזמנה">
@@ -200,7 +200,7 @@ function ParkingSessionScreen() {
                       borderRadius: '10px',
                       cursor: 'pointer',
                       fontWeight: 700,
-                      border: value <= rating ? '2px solid #f59e0b' : '1px solid #cbd5e1',
+                      border: value <= rating ? '2px solid #f59e0b' : '1px solid #cfdbea',
                       background: value <= rating ? '#fffbeb' : 'white',
                     }}
                   >
@@ -214,12 +214,12 @@ function ParkingSessionScreen() {
                 placeholder="כתבי כאן תגובה על החניה..."
                 rows={3}
                 maxLength={500}
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1px solid #cfdbea', boxSizing: 'border-box' }}
               />
               {reviewError !== null && (
                 <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700 }}>{reviewError}</div>
               )}
-              <Button label={busy ? 'שולח...' : 'שלחי תגובה'} background="#4f46e5" color="white" />
+              <Button label={busy ? 'שולח...' : 'שלחי תגובה'} background="#0a6cf0" color="white" />
             </form>
           )}
         </InfoCard>
@@ -228,7 +228,7 @@ function ParkingSessionScreen() {
           <Button
             label={reviewSent ? 'סיום וחזרה לדף הבית' : 'דלגי וחזרי לדף הבית'}
             onClick={handleFinish}
-            background="#0f172a"
+            background="#0a2540"
             color="white"
           />
         </div>
@@ -239,24 +239,24 @@ function ParkingSessionScreen() {
   // ===== מסך חניה פעילה =====
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', padding: '24px', borderRadius: '16px', textAlign: 'center' }}>
-        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: 0 }}>החניה פעילה 🅿️</h3>
-        <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#475569' }}>{placeName}</p>
+      <div style={{ background: '#eaf3ff', border: '1px solid #b3d2ff', padding: '24px', borderRadius: '16px', textAlign: 'center' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0a2540', margin: 0 }}>החניה פעילה 🅿️</h3>
+        <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#44566e' }}>{placeName}</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
         <InfoCard title="זמן חניה">
-          <div style={{ fontSize: '32px', fontWeight: 900, fontFamily: 'monospace', color: '#4f46e5', margin: '12px 0' }}>
+          <div style={{ fontSize: '32px', fontWeight: 900, fontFamily: 'monospace', color: '#0a6cf0', margin: '12px 0' }}>
             {formatElapsed(elapsedSeconds)}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b' }}>התחלה: {formatClock(startMs)}</div>
+          <div style={{ fontSize: '12px', color: '#5a6b82' }}>התחלה: {formatClock(startMs)}</div>
         </InfoCard>
 
         <InfoCard title="עלות משוערת">
           <div style={{ fontSize: '32px', fontWeight: 900, fontFamily: 'monospace', color: '#059669', margin: '12px 0' }}>
             {liveCost !== null ? `${liveCost} נק'` : '—'}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b' }}>העלות הסופית תחושב בסיום</div>
+          <div style={{ fontSize: '12px', color: '#5a6b82' }}>העלות הסופית תחושב בסיום</div>
         </InfoCard>
       </div>
 

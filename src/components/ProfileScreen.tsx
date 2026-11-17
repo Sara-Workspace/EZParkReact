@@ -191,7 +191,7 @@ function ProfileScreen() {
     width: '100%',
     padding: '10px 12px',
     borderRadius: '10px',
-    border: '1px solid #cbd5e1',
+    border: '1px solid #cfdbea',
     fontSize: '14px',
     boxSizing: 'border-box' as const,
   };
@@ -200,7 +200,7 @@ function ProfileScreen() {
     display: 'block',
     fontSize: '13px',
     fontWeight: 700,
-    color: '#334155',
+    color: '#2a3b52',
     marginBottom: '6px',
   };
 
@@ -214,7 +214,7 @@ function ProfileScreen() {
               type="email"
               value={email}
               disabled
-              style={{ ...inputStyle, background: '#f1f5f9', color: '#64748b', cursor: 'not-allowed' }}
+              style={{ ...inputStyle, background: '#eef4fb', color: '#5a6b82', cursor: 'not-allowed' }}
             />
           </div>
 
@@ -316,7 +316,7 @@ function ProfileScreen() {
                 fontWeight: 700,
                 fontSize: '14px',
                 cursor: saving ? 'not-allowed' : 'pointer',
-                background: '#4f46e5',
+                background: '#0a6cf0',
                 color: 'white',
               }}
             >
