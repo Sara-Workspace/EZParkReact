@@ -1,4 +1,4 @@
-import React from 'react';
+
 import RentalRow from './RentalRow';
 import StatCard from './StatCard';
 

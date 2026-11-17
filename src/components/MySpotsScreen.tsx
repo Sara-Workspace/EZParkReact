@@ -60,11 +60,11 @@ function MySpotsScreen() {
     if (savingId !== null) return;
     const parsedPrice = Number(getPriceInput(spot));
 
-    if (!Number.isFinite(parsedPrice) || parsedPrice < 1 || parsedPrice > MAX_HOURLY_PRICE) {
+  if (!Number.isFinite(parsedPrice) || parsedPrice < 1 || parsedPrice > MAX_HOURLY_PRICE) {
       setFeedback({
         id: spot.spotId,
         type: 'err',
-        text: `המחיר לשעה חייב להיות בין 1 ל-${MAX_HOURLY_PRICE} נקודות.`,
+        text: `מחיר מקסימלי: ${MAX_HOURLY_PRICE} נקודות לשעה (הזיני ערך בין 1 ל-${MAX_HOURLY_PRICE}).`,
       });
       return;
     }
@@ -222,6 +222,9 @@ function MySpotsScreen() {
                   >
                     שמירת מחיר
                   </button>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    (מקסימום {MAX_HOURLY_PRICE} נק׳ לשעה)
+                    </span>
                 </div>
 
                 {spotFeedback !== null && (

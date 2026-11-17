@@ -4,6 +4,8 @@ import { searchSpots } from '../store/search/searchThunks';
 import { setDestination } from '../store/search/searchSlice';
 import { geocodeAddress } from '../api/geocode';
 import { Navigate } from 'react-router-dom';
+import { apiFetch } from '../api/api';
+import type { ParkingSpot } from '../types';
 import ParkingCard from './ParkingCard';
 import Button from './Button';
 
@@ -24,6 +26,14 @@ function formatWalkTime(km: number): string {
   return `${Math.max(1, Math.round(km * 12))} דק' הליכה`;
 }
 
+// "רח' טרומפלדור 32" -> "טרומפלדור": מסירים קידומת "רח'/רחוב" ומספר בית בסוף
+function streetOf(address: string): string {
+  return address
+    .replace(/^(רח'|רחוב)\s+/, '')
+    .replace(/\s*\d+[א-תa-zA-Z]?\s*([-/]\s*\d+)?\s*$/, '')
+    .trim();
+}
+
 function SearchMapScreen() {
   const dispatch = useAppDispatch();
   const points = useAppSelector((state) => state.user.points);
@@ -35,6 +45,8 @@ function SearchMapScreen() {
   const [sortBy, setSortBy] = useState<SortBy>('smart');
   const [geoLoading, setGeoLoading] = useState<boolean>(false);
   const [geoError, setGeoError] = useState<string | null>(null);
+    // "רחוב, עיר" -> מרכז המיקום של החניות באותו רחוב
+  const [suggestions, setSuggestions] = useState<Record<string, { latitude: number; longitude: number }>>({});
 
   // חיפוש מחדש בכל שינוי ביעד, ברשימת ההחרגות או במיון
   useEffect(() => {
@@ -54,7 +66,44 @@ function SearchMapScreen() {
   if (!licensePlate) {
     return <Navigate to="/license-plate" replace />;
   }
-  
+
+  // הצעות לכתובת: מתוך הכתובות של החניות הקיימות במערכת
+   // הצעות לחיפוש: כל רחוב (בלי מספר בית) מופיע פעם אחת
+  useEffect(() => {
+    let cancelled = false;
+
+    apiFetch<ParkingSpot[]>('/ParkingSpots')
+      .then((allSpots) => {
+        if (cancelled) return;
+
+        // מקבצים לפי רחוב ועיר; חניות בלי קואורדינטות לא נכנסות
+        const groups = new Map<string, ParkingSpot[]>();
+        allSpots
+          .filter((s) => s.latitude !== 0 && s.longitude !== 0)
+          .forEach((s) => {
+            const key = `${streetOf(s.address)}, ${s.city}`;
+            groups.set(key, [...(groups.get(key) ?? []), s]);
+          });
+
+        // לכל רחוב: ממוצע המיקומים של החניות שבו
+        const result: Record<string, { latitude: number; longitude: number }> = {};
+        groups.forEach((group, key) => {
+          result[key] = {
+            latitude: group.reduce((sum, s) => sum + s.latitude, 0) / group.length,
+            longitude: group.reduce((sum, s) => sum + s.longitude, 0) / group.length,
+          };
+        });
+        setSuggestions(result);
+      })
+      .catch(() => {
+        // בלי הצעות עדיין אפשר להקליד כתובת ידנית
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   if (points <= 0) {
     return (
       <div style={{ padding: '24px', textAlign: 'center', color: '#dc2626', fontWeight: 700 }}>
@@ -70,6 +119,20 @@ function SearchMapScreen() {
       return;
     }
 
+        // נבחר רחוב מההצעות: מחפשים סביב מרכזו, בלי לפנות לשירות כתובות חיצוני
+    const known = suggestions[addressInput.trim()];
+    if (known !== undefined) {
+      setGeoError(null);
+      dispatch(
+        setDestination({
+          address: addressInput.trim(),
+          latitude: known.latitude,
+          longitude: known.longitude,
+        })
+      );
+      return;
+    }
+    
     setGeoLoading(true);
     setGeoError(null);
     try {
@@ -105,6 +168,7 @@ function SearchMapScreen() {
           value={addressInput}
           onChange={(e) => setAddressInput(e.target.value)}
           placeholder="לאן נוסעים? לדוגמה: הרצל 14, תל אביב"
+          list="address-suggestions"
           style={{
             flex: 1,
             padding: '10px 12px',
@@ -113,6 +177,11 @@ function SearchMapScreen() {
             boxSizing: 'border-box',
           }}
         />
+                <datalist id="address-suggestions">
+          {Object.keys(suggestions).map((suggestion) => (
+            <option key={suggestion} value={suggestion} />
+          ))}
+        </datalist>
         <Button label={geoLoading ? 'מחפש כתובת...' : 'חפשי חניה'} background="#4f46e5" color="white" />
       </form>
 

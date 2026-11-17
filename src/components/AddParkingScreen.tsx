@@ -51,6 +51,10 @@ function AddParkingScreen() {
         formData.append('Latitude', latitude);
         formData.append('Longitude', longitude);
       }
+     if (numericHourlyPrice > 50) {
+      setError('המחיר המקסימלי הוא 50 נקודות לשעה.');
+      return;
+    }
       formData.append('EvCharger', String(evCharger));
 
       if (imageFile !== null) {
@@ -144,25 +148,26 @@ function AddParkingScreen() {
           </div>
         </div>
 
-        <div>
-          <label htmlFor="spot-price" style={labelStyle}>
-            מחיר מבוקש לשעה (בשקלים)
-          </label>
-          <input
-            id="spot-price"
-            type="number"
-            step="0.5"
-            min="1"
-            required
-            value={basePricePerHour}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setBasePricePerHour(e.target.value)}
-            style={inputStyle}
-          />
-          <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-            תעריף מחושב לנהג: <strong>₪{pricePerMinutePreview} לדקה</strong>
-          </span>
-        </div>
-
+    <div>
+  <label htmlFor="spot-price" style={labelStyle}>
+    מחיר מבוקש לשעה (בנקודות)
+  </label>
+  <input
+    id="spot-price"
+    type="number"
+    step="0.5"
+    min="1"
+    max="50"
+    required
+    value={basePricePerHour}
+    onChange={(e: ChangeEvent<HTMLInputElement>) => setBasePricePerHour(e.target.value)}
+    style={inputStyle}
+  />
+  <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+    מחיר מקסימלי: <strong>50 נקודות לשעה</strong> • תעריף מחושב לנהג:{' '}
+    <strong>{pricePerMinutePreview} נק׳ לדקה</strong>
+  </span>
+</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>
             <label htmlFor="spot-lat" style={labelStyle}>

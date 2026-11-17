@@ -86,7 +86,10 @@ function LoginScreen() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (email.trim() === '' || password.trim() === '') return;
-
+    if (mode !== 'login' && password.length < 8) {
+      setError('הסיסמה חייבת להכיל לפחות 8 תווים.');
+      return;
+    }
     setLoading(true);
     setError(null);
     setSuccessMsg(null);
@@ -361,6 +364,11 @@ function LoginScreen() {
               placeholder="••••••••"
               style={inputStyle}
             />
+             {mode !== 'login' && (
+              <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                הסיסמה חייבת להכיל לפחות 8 תווים
+              </span>
+            )}
           </div>
 
           {error !== null && (
