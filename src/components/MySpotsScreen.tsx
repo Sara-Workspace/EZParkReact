@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchMyParkings, updateParking } from '../store/parkings/parkingsThunks';
 import type { ParkingSpot } from '../types';
+import SpotReviews from './SpotReviews';
 import InfoCard from './InfoCard';
 import Button from './Button';
 import OwnerSpotCheck from './OwnerSpotCheck'; // 🏠 בדיקת רכב זר בחניה (תמונה + AI)
@@ -242,6 +243,7 @@ function MySpotsScreen() {
                     {spotFeedback.text}
                   </div>
                 )}
+                <SpotReviews spotId={spot.spotId} />
               </div>
             </InfoCard>
           );

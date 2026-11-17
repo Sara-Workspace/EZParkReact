@@ -5,6 +5,7 @@ import { useAppDispatch } from '../store/hooks';
 import { setHold } from '../store/session/sessionSlice';
 import { excludeSpot } from '../store/search/searchSlice';
 import type { ParkingSpot, HoldResult } from '../types';
+import SpotReviews from './SpotReviews';
 import Button from './Button';
 
 function DetailsScreen() {
@@ -89,6 +90,7 @@ function DetailsScreen() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <SpotReviews spotId={spot.spotId} />
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 style={{ fontSize: '14px', fontWeight: 700 }}>פרטי החניה והמחיר</h4>
           <p style={{ fontSize: '14px', margin: 0 }}><strong>מחיר לשעה:</strong> ₪{spot.basePricePerHour}</p>
