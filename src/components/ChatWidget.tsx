@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
 
 // Gemini מסמן לפעמים טקסט מודגש עם ** (למשל **הרצל 10**). מורידים את הכוכביות כדי שלא יופיעו על המסך
@@ -10,10 +11,17 @@ function cleanText(text: string): string {
 // מופיע בכל המסכים של משתמש מחובר (נוסף ב-Layout)
 function ChatWidget() {
   const { messages, loading, error, sendMessage, startNewChat } = useChat();
+  const navigate = useNavigate();
 
   // useState ולא Redux: רק הקומפוננטה הזאת צריכה לדעת אם החלון פתוח ומה כתוב בתיבה
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
+
+  // לחיצה על חניה שה-AI מצא: עוברים למסך פרטי החניה (משם מזמינים כרגיל), וסוגרים את החלון
+  function openSpot(spotId: number) {
+    navigate(`/parking/${spotId}`);
+    setOpen(false);
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // שהדף לא יתרענן
@@ -131,7 +139,9 @@ function ChatWidget() {
               key={message.id}
               style={{
                 display: 'flex',
-                justifyContent: message.role === 'user' ? 'flex-start' : 'flex-end',
+                flexDirection: 'column',
+                alignItems: message.role === 'user' ? 'flex-start' : 'flex-end',
+                gap: '6px',
               }}
             >
               <div
@@ -150,6 +160,31 @@ function ChatWidget() {
                 {/* הודעת AI ריקה = התשובה עוד לא התחילה להגיע */}
                 {message.text === '' ? 'מחפש חניות... 🔎' : cleanText(message.text)}
               </div>
+
+              {/* החניות שה-AI מצא: כפתור לכל אחת, שמוביל למסך פרטי החניה */}
+              {message.spots !== undefined &&
+                message.spots.map((spot) => (
+                  <button
+                    key={spot.id}
+                    type="button"
+                    onClick={() => openSpot(spot.id)}
+                    style={{
+                      maxWidth: '85%',
+                      padding: '8px 12px',
+                      borderRadius: '10px',
+                      border: '1px solid #c7d2fe',
+                      background: '#eef2ff',
+                      color: '#3730a3',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      textAlign: 'right',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    📍 {spot.address}, {spot.city} · {spot.pricePerHour} ₪/שעה {spot.evCharger && '· ⚡'} · לפרטים ←
+                  </button>
+                ))}
             </div>
           ))}
 

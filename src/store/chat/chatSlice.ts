@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { initialState } from './chatState';
-import { appendChunkReducer, clearChatReducer } from './chatReducers';
+import { appendChunkReducer, clearChatReducer, setSpotsReducer } from './chatReducers';
 import { sendChatMessage } from './chatThunks';
 
 const chatSlice = createSlice({
@@ -8,6 +8,7 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     appendChunk: appendChunkReducer,
+    setSpots: setSpotsReducer,
     clearChat: clearChatReducer,
   },
   extraReducers: (builder) => {
@@ -34,5 +35,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { appendChunk, clearChat } = chatSlice.actions;
+export const { appendChunk, setSpots, clearChat } = chatSlice.actions;
 export default chatSlice.reducer;
