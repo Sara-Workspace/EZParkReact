@@ -9,7 +9,7 @@ import SpotReviews from './SpotReviews';
 import Button from './Button';
 import ParkingTermsConsent from './ParkingTermsConsent';
 
-const SERVER_ORIGIN = 'https://localhost:7036';
+const SERVER_ORIGIN = 'http://ezpark.tryasp.net';
 
 function resolveSpotImageUrl(image?: string | null): string | null {
   if (!image || image.trim() === '') return null;

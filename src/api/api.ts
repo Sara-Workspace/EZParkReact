@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:7036/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://ezpark.tryasp.net/api';
 
 // ===== שגיאה מהשרת =====
 // במקום "Server error: 400" שומרים 2 דברים:

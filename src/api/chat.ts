@@ -1,6 +1,6 @@
 import type { ChatSpot } from '../store/chat/chatState';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:7036/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://ezpark.tryasp.net/api';
 
 // מה שהשרת מצפה לקבל על כל הודעה (ChatMessageDTO בשרת)
 interface ChatMessageForServer {
