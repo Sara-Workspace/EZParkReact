@@ -134,8 +134,8 @@ function DetailsScreen() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
         <div style={{ background: '#f6faff', border: '1px solid #dfe8f3', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 style={{ fontSize: '14px', fontWeight: 700, margin: 0 }}>פרטי החניה והמחיר</h4>
-          <p style={{ fontSize: '14px', margin: 0 }}><strong>מחיר לשעה:</strong> {spot.basePricePerHour} נק׳</p>
-          <p style={{ fontSize: '14px', margin: 0 }}><strong>מחיר לדקה:</strong> {pricePerMin} נק׳</p>
+          <p style={{ fontSize: '14px', margin: 0 }}><strong>מחיר לשעה:</strong> {spot.basePricePerHour} ₪</p>
+          <p style={{ fontSize: '14px', margin: 0 }}><strong>מחיר לדקה:</strong> {pricePerMin} ₪</p>
           <p style={{ fontSize: '14px', margin: 0 }}><strong>עמדת טעינה:</strong> {spot.evCharger ? 'קיימת ⚡' : 'ללא'}</p>
         </div>
 

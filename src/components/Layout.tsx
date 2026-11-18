@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'; // התאם ל�
 import { logout } from '../store/user/userSlice'; // התאם לנתיב של ה-Slice שלך
 import { loadActiveReservation } from '../store/session/sessionThunks';
 import ChatWidget from './ChatWidget';
+import { formatMoney } from '../utils/money';
 
 
 
@@ -16,7 +17,7 @@ function Layout() {
 
   const hasActiveParking = useAppSelector((state) => state.session.reservation?.status === 'Active');
 
-  // הנקודות בכותרת מתעדכנות מהשרת בכל מעבר בין מסכים
+  // יתרת הארנק בכותרת מתעדכנת מהשרת בכל מעבר בין מסכים
    useEffect(() => {
     if (localStorage.getItem('token') !== null) {
       dispatch(refreshPoints());
@@ -84,6 +85,13 @@ function Layout() {
             לוח בקרה
           </NavLink>
 
+          {/* 👛 הארנק: היתרה בשקלים, לחיצה פותחת את מסך הארנק */}
+          {token !== null && (
+            <NavLink to="/wallet" style={getNavLinkStyle}>
+              👛 {formatMoney(user.points)}
+            </NavLink>
+          )}
+
           {showAdminLink && (
             <NavLink to="/admin" style={getNavLinkStyle}>
               לוח ניהול 🛡️
@@ -101,7 +109,7 @@ function Layout() {
               })}
               title="עדכון פרטי פרופיל"
             >
-              👤 {user.firstName} ({user.points} נק׳)
+              👤 {user.firstName}
             </NavLink>
           )}
 

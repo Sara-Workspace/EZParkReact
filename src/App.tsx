@@ -16,6 +16,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './components/NotFound';
 import ParkingSessionScreen from './components/ParkingSessionScreen';
 import ProfileScreen from './components/ProfileScreen';
+import WalletScreen from './components/WalletScreen';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardScreen />} />
         <Route path="/parking-session" element={<ParkingSessionScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/wallet" element={<WalletScreen />} /> {/* 👛 הארנק */}
         <Route
           path="/admin"
           element={

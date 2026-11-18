@@ -7,9 +7,10 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setLicensePlate } from '../store/user/userSlice';
 import ScreenSection from './ScreenSection';
 import Button from './Button';
+import { formatMoney } from '../utils/money';
 
-// מתחת למספר הזה מציגים התראה
-const LOW_POINTS_LIMIT = 100;
+// מתחת לסכום הזה (בשקלים) מציגים התראה
+const LOW_POINTS_LIMIT = 20;
 
 function LicensePlateScreen() {
   const navigate = useNavigate();
@@ -26,18 +27,18 @@ function LicensePlateScreen() {
   // בדיקת המספר בכל הקלדה: 7 או 8 ספרות
   const plateError = validatePlate(plate);
 
-  // אין נקודות: לא מציגים טופס ולא ממשיכים לרשימת החניות
+  // אין כסף בארנק: לא מציגים טופס ולא ממשיכים לרשימת החניות
   if (user.points <= 0) {
     return (
       <div style={{ maxWidth: '480px', margin: '0 auto' }}>
-        <ScreenSection title="אין נקודות זמינות">
+        <ScreenSection title="הארנק ריק">
           <p style={{ fontSize: '14px', color: '#dc2626', fontWeight: 700, margin: '0 0 16px 0' }}>
-            נגמרו לך הנקודות למימוש לחודש זה.
+            אין מספיק כסף בארנק. היתרה שלך: {formatMoney(user.points)}
           </p>
           <p style={{ fontSize: '13px', color: '#5a6b82', margin: '0 0 16px 0' }}>
-            הנקודות מתחדשות פעם בחודש. עד אז אפשר להרוויח נקודות על ידי השכרת חניה.
+            טוענים את הארנק ב-PayPal תוך דקה, ואז אפשר לחפש חניה.
           </p>
-          <Button label="חזרה לדף הבית" onClick={() => navigate('/home')} background="#0a6cf0" color="white" />
+          <Button label="לטעינת הארנק 👛" onClick={() => navigate('/wallet')} background="#0a6cf0" color="white" />
         </ScreenSection>
       </div>
     );
@@ -88,7 +89,7 @@ function LicensePlateScreen() {
             fontWeight: 700,
           }}
         >
-          ⚠️ שימי לב: נשארו לך {user.points} נקודות בלבד.
+          ⚠️ שימי לב: נשארו לך {formatMoney(user.points)} בארנק בלבד.
         </div>
       )}
 

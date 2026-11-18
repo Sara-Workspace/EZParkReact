@@ -62,3 +62,16 @@ export interface SpotHours {
   startTime: string;      // "08:00:00"
   endTime: string;        // "16:00:00"
 }
+
+// 👛 הארנק (api/Wallet/me)
+export interface WalletTransaction {
+  type: 'TopUp' | 'Parking' | 'Earning' | 'PlatformFee' | 'Fine' | 'Withdrawal';
+  amount: number;        // חיובי = נכנס, שלילי = יצא
+  description: string;
+  createdAt: string;
+}
+
+export interface Wallet {
+  balance: number;       // היתרה בשקלים
+  transactions: WalletTransaction[];
+}

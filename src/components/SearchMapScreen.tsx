@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { searchSpots } from '../store/search/searchThunks';
 import { setDestination } from '../store/search/searchSlice';
 import { geocodeAddress } from '../api/geocode';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { apiFetch } from '../api/api';
 import type { ParkingSpot } from '../types';
 import ParkingCard from './ParkingCard';
@@ -108,7 +108,7 @@ function SearchMapScreen() {
   if (points <= 0) {
     return (
       <div style={{ padding: '24px', textAlign: 'center', color: '#dc2626', fontWeight: 700 }}>
-        נגמרו לך הנקודות למימוש לחודש זה.
+        אין מספיק כסף בארנק. <Link to="/wallet">טעני את הארנק</Link> כדי לחפש חניה.
       </div>
     );
   }

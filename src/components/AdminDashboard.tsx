@@ -8,6 +8,7 @@ import { parseServerUtc } from '../utils/time';
 import ScreenSection from './ScreenSection';
 import StatCard from './StatCard';
 import Button from './Button';
+import { formatMoney } from '../utils/money';
 import AdminSpotCheck from './AdminSpotCheck'; // 👑 מצלמה מדומה + בדיקת רכב (AI)
 
 interface DriverItem {
@@ -19,6 +20,7 @@ interface DriverItem {
   phone: string;
   creditBalance: number;
   points?: number;
+  balance?: number;     // 👛 יתרת הארנק בשקלים
   isAdmin: boolean;
 }
 
@@ -47,6 +49,8 @@ function AdminDashboard() {
   const [usersLoading, setUsersLoading] = useState<boolean>(true);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  // 💰 כמה האתר הרוויח (עמלות 10% + קנסות)
+  const [platform, setPlatform] = useState<{ totalFees: number; parkingCount: number; totalFines: number } | null>(null);
 
   useEffect(() => {
     dispatch(fetchParkings());
@@ -61,6 +65,10 @@ function AdminDashboard() {
         setDrivers(driversData);
         setOwners(ownersData);
         setReservations(reservationsData);
+        // רווחי האתר: לא קריטי. אם נכשל, פשוט לא מציגים
+        apiFetch<{ totalFees: number; parkingCount: number; totalFines: number }>('/Wallet/platform')
+          .then(setPlatform)
+          .catch(() => setPlatform(null));
       } catch (err) {
         setUsersError(getErrorMessage(err, 'שגיאה בטעינת נתוני הניהול. ודאי שאת מחוברת כמנהלת (Admin).'));
       } finally {
@@ -156,10 +164,17 @@ function AdminDashboard() {
         לוח ניהול מערכת (Admin) 🛡️
       </h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <StatCard title="סה״כ נהגים רשומים" value={`${drivers.length}`} valueColor="#0a6cf0" />
         <StatCard title="סה״כ בעלי חניות" value={`${owners.length}`} valueColor="#059669" />
         <StatCard title="חניות במערכת" value={`${spots.length}`} valueColor="#0a2540" />
+        {platform !== null && (
+          <StatCard
+            title={`💰 רווח האתר (10% מ-${platform.parkingCount} חניות + קנסות)`}
+            value={formatMoney(platform.totalFees + platform.totalFines)}
+            valueColor="#059669"
+          />
+        )}
       </div>
 
       {actionError !== null && (
@@ -247,7 +262,7 @@ function AdminDashboard() {
                   <th style={thStyle}>נהגת</th>
                   <th style={thStyle}>התחלה</th>
                   <th style={thStyle}>סיום</th>
-                  <th style={thStyle}>עלות (נק')</th>
+                  <th style={thStyle}>עלות (₪)</th>
                   <th style={thStyle}>סטטוס</th>
                 </tr>
               </thead>
@@ -355,7 +370,7 @@ function AdminDashboard() {
                       </td>
                       <td style={tdStyle}>{driver.email}</td>
                       <td style={tdStyle}>{driver.phone}</td>
-                      <td style={tdStyle}>{driver.points ?? driver.creditBalance ?? 0} נק׳</td>
+                      <td style={tdStyle}>{formatMoney(driver.balance ?? 0)}</td>
                       <td style={tdStyle}>{driver.isAdmin ? 'מנהל + נהג' : 'נהג'}</td>
                     </tr>
                   );

@@ -5,6 +5,7 @@ import { fetchParkings } from '../store/parkings/parkingsThunks';
 import type { ParkingSpot, Reservation } from '../types';
 import { parseServerUtc } from '../utils/time';
 import RentalRow from './RentalRow';
+import { ownerShare } from '../utils/money';
 import StatCard from './StatCard';
 
 function formatTimeAgo(isoDate: string): string {
@@ -58,16 +59,16 @@ function DashboardScreen() {
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  // נקודות שנוספו החודש (כהכנסה מהשכרת חניות שלי)
+  // כסף שנכנס החודש מהשכרת החניות שלי (90% מכל חניה, 10% הולכים לאתר)
   const earnedThisMonth = reservations
     .filter((r) => {
       if (r.status !== 'Completed' || !mySpotIds.has(r.spotID)) return false;
       const d = new Date(parseServerUtc(r.startTime));
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
-    .reduce((sum, r) => sum + Number(r.totalPrice || 0), 0);
+    .reduce((sum, r) => sum + ownerShare(Number(r.totalPrice || 0)), 0);
 
-  // נקודות שירדו החודש (תשלום על חניה אצל אחרים)
+  // כסף שירד החודש (תשלום על חניה אצל אחרים)
   const spentThisMonth = reservations
     .filter((r) => {
       if (r.status !== 'Completed' || mySpotIds.has(r.spotID)) return false;
@@ -114,13 +115,13 @@ function DashboardScreen() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
         <StatCard
-          title="נקודות שנוספו לי החודש"
-          value={`+${earnedThisMonth.toFixed(1)} נק׳`}
+          title="הכנסות החודש (90% מכל חניה)"
+          value={`+${earnedThisMonth.toFixed(2)} ₪`}
           valueColor="#059669"
         />
         <StatCard
-          title="נקודות שירדו לי החודש"
-          value={`-${spentThisMonth.toFixed(1)} נק׳`}
+          title="שילמתי החודש על חניות"
+          value={`-${spentThisMonth.toFixed(2)} ₪`}
           valueColor="#dc2626"
         />
         <StatCard
@@ -169,7 +170,7 @@ function DashboardScreen() {
                 timeAgo={formatTimeAgo(res.startTime)}
                 durationMin={durationMin}
                 type={spot?.evCharger ? 'כולל טעינה ⚡' : 'חניה רגילה'}
-                totalEarnings={Number(res.totalPrice || 0).toFixed(1)}
+                totalEarnings={(isIncome ? ownerShare(Number(res.totalPrice || 0)) : Number(res.totalPrice || 0)).toFixed(2)}
                 statusLabel={isActive ? 'פעילה כעת' : 'הושלמה'}
                 isActive={isActive}
                 isIncome={isIncome}

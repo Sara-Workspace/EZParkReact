@@ -3,7 +3,7 @@ export interface UserState {
   role: 'Admin' | 'Owner' | 'Driver' | null;
   firstName: string;
   lastName: string;
-  points: number;
+  points: number;              // 👛 יתרת הארנק בשקלים (השם נשאר מהשיטה הישנה של נקודות)
   licensePlate: string | null;
 }
 
