@@ -79,8 +79,8 @@ export function validatePrice(value: string): string | null {
   if (value.trim() === '') return 'יש למלא מחיר לשעה.';
   const price = Number(value);
   if (Number.isNaN(price)) return 'המחיר חייב להיות מספר.';
-  if (price < 1) return 'המחיר המינימלי הוא נקודה אחת לשעה.';
-  if (price > 50) return 'המחיר המקסימלי הוא 50 נקודות לשעה.';
+  if (price < 1) return 'המחיר המינימלי הוא 1 ₪ לשעה.';
+  if (price > 50) return 'המחיר המקסימלי הוא 50 ₪ לשעה.';
   return null;
 }
 

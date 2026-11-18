@@ -73,7 +73,7 @@ function RentalRow({
             color: amountColor,
           }}
         >
-          {sign}{totalEarnings} נק׳
+          {sign}{totalEarnings} ₪
         </span>
         <span style={{ display: 'block', fontSize: '10px', color: '#8fa1b8' }}>
           {statusLabel}

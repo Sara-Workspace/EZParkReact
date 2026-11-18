@@ -172,7 +172,7 @@ function AddParkingScreen() {
 
     <div>
   <label htmlFor="spot-price" style={labelStyle}>
-    מחיר מבוקש לשעה (בנקודות)
+    מחיר מבוקש לשעה (₪)
   </label>
   <input
     id="spot-price"
@@ -189,8 +189,8 @@ function AddParkingScreen() {
     <FieldMessage error={priceError} show={true} />
   ) : (
     <span style={{ display: 'block', fontSize: '11px', color: '#5a6b82', marginTop: '4px' }}>
-      מחיר מקסימלי: <strong>50 נקודות לשעה</strong> • תעריף מחושב לנהג:{' '}
-      <strong>{pricePerMinutePreview} נק׳ לדקה</strong>
+      מחיר מקסימלי: <strong>50 ₪ לשעה</strong> • לנהג: <strong>{pricePerMinutePreview} ₪ לדקה</strong>
+      {' '}• את/ה מקבל/ת 90% (10% עמלת האתר)
     </span>
   )}
 </div>

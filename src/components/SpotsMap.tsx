@@ -76,7 +76,7 @@ function SpotsMap({ destination, spots, fill = false }: SpotsMapProps) {
     spots.forEach((spot) => {
       if (spot.latitude === 0 || spot.longitude === 0) return;
 
-      const priceLabel = `${spot.effectivePricePerHour} נק׳/שעה`;
+      const priceLabel = `${spot.effectivePricePerHour} ₪/שעה`;
       const spotIcon = L.divIcon({
         className: 'custom-spot-pin',
         html: `<div style="background:#0a6cf0;color:white;font-weight:700;font-size:11px;padding:4px 8px;border-radius:10px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;cursor:pointer;">🅿️ ${priceLabel}</div>`,
@@ -92,7 +92,7 @@ function SpotsMap({ destination, spots, fill = false }: SpotsMapProps) {
       popupDiv.style.minWidth = '160px';
       popupDiv.innerHTML = `
         <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${spot.address}, ${spot.city}</div>
-        <div style="font-size:12px;color:#44566e;margin-bottom:4px;">מחיר: <strong>${spot.effectivePricePerHour} נק׳/שעה</strong></div>
+        <div style="font-size:12px;color:#44566e;margin-bottom:4px;">מחיר: <strong>${spot.effectivePricePerHour} ₪/שעה</strong></div>
         <div style="font-size:11px;color:#5a6b82;margin-bottom:8px;">${spot.evCharger ? '⚡ כולל עמדת טעינה' : 'חניה רגילה'}</div>
       `;
 

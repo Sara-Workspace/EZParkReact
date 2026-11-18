@@ -52,14 +52,14 @@ const STEPS = [
   {
     n: '4',
     title: 'משלמים ומרוויחים',
-    text: 'התשלום בנקודות נגבה אוטומטית בסיום, והנקודות נצברות אצל בעל החניה.',
-    screenTag: 'סיכום ותשלום בנקודות',
+    text: 'התשלום יורד מהארנק אוטומטית בסיום, לפי הדקות שחניתם בפועל.',
+    screenTag: 'סיכום ותשלום מהארנק',
   },
 ];
 
 const TESTIMONIALS = [
   { name: 'נועה לוי', role: 'נהגת בתל אביב', text: 'מצאתי חניה פרטית תוך דקה ממש מתחת למשרד. אפס סיבובים מיותרים.' },
-  { name: 'דניאל כהן', role: 'בעל חניה פרטית', text: 'החניה שלי הייתה ריקה כל הבוקר כשאני בעבודה. היום היא מכניסה לי נקודות מדי יום.' },
+  { name: 'דניאל כהן', role: 'בעל חניה פרטית', text: 'החניה שלי הייתה ריקה כל הבוקר כשאני בעבודה. היום היא מכניסה לי כסף מדי יום.' },
   { name: 'מיכל אברהם', role: 'נהגת רכב חשמלי', text: 'השריון מראש והניווט הישיר לחניה שינו לי את שגרת הבוקר בעיר.' },
 ];
 
@@ -182,7 +182,7 @@ function LandingScreen() {
           </h1>
 
           <p style={{ fontSize: 20, lineHeight: 1.75, color: MUTED, margin: 0, maxWidth: 500 }}>
-            מצאו חניה פרטית פנויה ליד היעד, שריינו מראש ושלמו בנקודות לפי זמן החניה בפועל.
+            מצאו חניה פרטית פנויה ליד היעד, שריינו מראש ושלמו מהארנק לפי זמן החניה בפועל.
           </p>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
@@ -409,7 +409,7 @@ function LandingScreen() {
                         <div style={{ fontWeight: 800, color: NAVY, fontSize: 16 }}>חניה פרטית #21 • שדרות רוטשילד / דיזנגוף</div>
                         <div style={{ fontSize: 13, color: MUTED, marginTop: 2 }}>180 מ׳ מהיעד • 2 דק׳ הליכה • שער חשמלי</div>
                       </div>
-                      <span style={{ fontFamily: HEAD, fontWeight: 800, color: BLUE, fontSize: 16 }}>0.25 נק׳/דק׳</span>
+                      <span style={{ fontFamily: HEAD, fontWeight: 800, color: BLUE, fontSize: 16 }}>0.25 ₪/דק׳</span>
                     </div>
                   </>
                 )}
@@ -469,7 +469,7 @@ function LandingScreen() {
                       <div style={{ background: PAGE, border: `1px solid ${LINE}`, borderRadius: 16, padding: 14 }}>
                         <div style={{ fontSize: 12, color: MUTED }}>צבירה נוכחית</div>
                         <div style={{ fontFamily: HEAD, fontSize: 17, fontWeight: 800, color: BLUE, marginTop: 4 }}>
-                          {(Math.floor(liveSeconds / 60) * 0.25).toFixed(2)} נק׳
+                          {(Math.floor(liveSeconds / 60) * 0.25).toFixed(2)} ₪
                         </div>
                       </div>
                     </div>
@@ -491,18 +491,18 @@ function LandingScreen() {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: MUTED }}>תעריף לדקה</span>
-                          <span style={{ fontWeight: 700, color: NAVY }}>0.25 נקודות</span>
+                          <span style={{ fontWeight: 700, color: NAVY }}>0.25 ₪</span>
                         </div>
                         <div style={{ borderTop: `1px solid ${LINE}`, paddingTop: 10, display: 'flex', justifyContent: 'space-between', fontSize: 16 }}>
                           <span style={{ fontWeight: 800, color: NAVY }}>סה״כ לתשלום</span>
-                          <span style={{ fontFamily: HEAD, fontWeight: 800, color: BLUE }}>6.25 נקודות</span>
+                          <span style={{ fontFamily: HEAD, fontWeight: 800, color: BLUE }}>6.25 ₪</span>
                         </div>
                       </div>
                     </div>
 
                     <div style={{ background: SKY, borderRadius: 16, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>הנקודות הועברו לבעל החניה</span>
-                      <span style={{ fontFamily: HEAD, fontWeight: 800, color: BLUE, fontSize: 15 }}>+6.25 נק׳ ★</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>התשלום הועבר לבעל החניה</span>
+                      <span style={{ fontFamily: HEAD, fontWeight: 800, color: BLUE, fontSize: 15 }}>+5.63 ₪ (90%)</span>
                     </div>
                   </>
                 )}
@@ -520,7 +520,7 @@ function LandingScreen() {
               יש לך חניה פרטית? <span style={{ color: SUN }}>שתעבוד בשבילך.</span>
             </h2>
             <p style={{ margin: '16px 0 0', fontSize: 19, lineHeight: 1.75, color: '#c9ddd0' }}>
-              פרסמו את החניה בשתי דקות והרוויחו נקודות בכל פעם שהיא פנויה ומישהו חונה בה.
+              פרסמו את החניה בשתי דקות והרוויחו כסף בכל פעם שהיא פנויה ומישהו חונה בה.
             </p>
           </div>
           <button type="button" onClick={goLogin} className="ez-btn"

@@ -39,7 +39,7 @@ function SpotCheckResultBox({ result }: SpotCheckResultBoxProps) {
       {/* ההודעה בעברית מגיעה מוכנה מהשרת */}
       <span>{result.message}</span>
       {/* מוצג רק אם ניתן קנס */}
-      {result.finePoints > 0 && <span style={{ fontWeight: 700 }}>💸 קנס: {result.finePoints} נקודות</span>}
+      {result.finePoints > 0 && <span style={{ fontWeight: 700 }}>💸 קנס: {result.finePoints} ₪</span>}
       {/* מוצג רק אם החניה הוסתרה מהחיפוש */}
       {!result.spotAvailable && <span>🚫 החניה לא מוצגת כרגע לנהגים בחיפוש</span>}
     </div>

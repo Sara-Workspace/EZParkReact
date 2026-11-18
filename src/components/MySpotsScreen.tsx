@@ -114,7 +114,7 @@ function MySpotsScreen() {
       setFeedback({
         id: spot.spotId,
         type: 'err',
-        text: `מחיר מקסימלי: ${MAX_HOURLY_PRICE} נקודות לשעה (הזיני ערך בין 1 ל-${MAX_HOURLY_PRICE}).`,
+        text: `מחיר מקסימלי: ${MAX_HOURLY_PRICE} ₪ לשעה (הזיני ערך בין 1 ל-${MAX_HOURLY_PRICE}).`,
       });
       return;
     }
@@ -160,7 +160,7 @@ function MySpotsScreen() {
         <div>
           <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 800, color: '#0a2540' }}>החניות שלי 🅿️</h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#44566e' }}>
-            {mySpots.length > 0 ? `${mySpots.length} חניות • ` : ''}ניהול זמינות ועריכת פרטים (עד {MAX_HOURLY_PRICE} נק׳/שעה)
+            {mySpots.length > 0 ? `${mySpots.length} חניות • ` : ''}ניהול זמינות ועריכת פרטים (עד {MAX_HOURLY_PRICE} ₪/שעה)
           </p>
         </div>
         <Button
@@ -180,7 +180,7 @@ function MySpotsScreen() {
       {mySpots.length === 0 ? (
         <InfoCard title="עדיין אין לך חניות רשומות">
           <p style={{ fontSize: '14px', color: '#44566e', margin: '12px 0' }}>
-            הוסיפי חניה פרטית כדי להתחיל לצבור נקודות מנהגים שחונים אצלך.
+            הוסיפי חניה פרטית כדי להתחיל להרוויח כסף מנהגים שחונים אצלך.
           </p>
           <Button
             label="הוספת חניה ראשונה"
@@ -243,7 +243,7 @@ function MySpotsScreen() {
                 <div>
                   <div style={{ fontSize: '22px', fontWeight: 800, color: '#0a6cf0' }}>
                     {spot.basePricePerHour}
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#8fa1b8', marginRight: '4px' }}>נק׳/שעה</span>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#8fa1b8', marginRight: '4px' }}>₪/שעה</span>
                   </div>
                   {spot.evCharger && (
                     <div style={{ fontSize: '12px', color: '#0369a1', fontWeight: 700, marginTop: '2px' }}>⚡ עמדת טעינה</div>
@@ -337,7 +337,7 @@ function MySpotsScreen() {
                     >
                       {spot.isActive ? '● זמינה להזמנות' : '○ לא זמינה'}
                     </span>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#2a3b52' }}>{spot.basePricePerHour} נק׳/שעה</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#2a3b52' }}>{spot.basePricePerHour} ₪/שעה</span>
                     {spot.evCharger && <span style={{ fontSize: '12px', color: '#0369a1', fontWeight: 700 }}>⚡ עמדת טעינה</span>}
                   </div>
 
@@ -396,7 +396,7 @@ function MySpotsScreen() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
-                          מחיר לשעה (1–{MAX_HOURLY_PRICE} נק׳)
+                          מחיר לשעה (1–{MAX_HOURLY_PRICE} ₪)
                         </label>
                         <input
                           type="number"

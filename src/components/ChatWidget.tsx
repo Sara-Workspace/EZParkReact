@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
+import { useVoiceInput } from '../hooks/useVoiceInput';
 
 // Gemini מסמן לפעמים טקסט מודגש עם ** (למשל **הרצל 10**). מורידים את הכוכביות כדי שלא יופיעו על המסך
 function cleanText(text: string): string {
@@ -11,6 +12,7 @@ function cleanText(text: string): string {
 // מופיע בכל המסכים של משתמש מחובר (נוסף ב-Layout)
 function ChatWidget() {
   const { messages, loading, error, sendMessage, startNewChat } = useChat();
+  const { listening, voiceError, startListening } = useVoiceInput();
   const navigate = useNavigate();
 
   // useState ולא Redux: רק הקומפוננטה הזאת צריכה לדעת אם החלון פתוח ומה כתוב בתיבה
@@ -27,6 +29,19 @@ function ChatWidget() {
     e.preventDefault(); // שהדף לא יתרענן
     sendMessage(input);
     setInput('');
+  }
+
+  // 🎤 לחיצה על המיקרופון: מקשיבים, והטקסט שזוהה נכנס לתיבת הכתיבה.
+  // לא שולחים לבד, כדי שאפשר יהיה לבדוק ולתקן לפני "שליחה"
+  function handleVoice() {
+    startListening((text) => {
+      // אם כבר היה משהו כתוב בתיבה, מוסיפים אחריו
+      if (input.trim() === '') {
+        setInput(text);
+      } else {
+        setInput(input + ' ' + text);
+      }
+    });
   }
 
   // ===== סגור: רק כפתור עגול בפינה =====
@@ -191,6 +206,11 @@ function ChatWidget() {
           {error !== null && (
             <p style={{ color: '#dc2626', fontSize: '13px', textAlign: 'center', margin: 0 }}>{error}</p>
           )}
+
+          {/* שגיאה בהקלטה (מיקרופון, דפדפן וכו') */}
+          {voiceError !== null && (
+            <p style={{ color: '#dc2626', fontSize: '13px', textAlign: 'center', margin: 0 }}>{voiceError}</p>
+          )}
         </div>
       </div>
 
@@ -203,9 +223,9 @@ function ChatWidget() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="כתבו הודעה..."
+          placeholder={listening ? 'מקשיב... דברו עכשיו 🎙️' : 'כתבו הודעה או לחצו על 🎤'}
           maxLength={2000}
-          disabled={loading}
+          disabled={loading || listening}
           style={{
             flex: 1,
             padding: '10px 12px',
@@ -215,9 +235,27 @@ function ChatWidget() {
             fontFamily: 'inherit',
           }}
         />
+        {/* 🎤 כפתור הקלטה. בזמן ההקלטה הוא אדום */}
+        <button
+          type="button"
+          onClick={handleVoice}
+          disabled={loading || listening}
+          title="הקלטה במקום כתיבה"
+          style={{
+            width: '42px',
+            borderRadius: '10px',
+            border: 'none',
+            background: listening ? '#dc2626' : '#eaf3ff',
+            color: listening ? 'white' : '#0a6cf0',
+            fontSize: '18px',
+            cursor: loading || listening ? 'default' : 'pointer',
+          }}
+        >
+          {listening ? '⏺' : '🎤'}
+        </button>
         <button
           type="submit"
-          disabled={loading || input.trim() === ''}
+          disabled={loading || listening || input.trim() === ''}
           style={{
             padding: '0 16px',
             borderRadius: '10px',

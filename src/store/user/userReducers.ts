@@ -11,9 +11,9 @@ export const logoutReducer = () => {
   return emptyState;
 };
 
-// הורדת נקודות (למשל בסיום חניה). לעולם לא יורדים מתחת ל-0
+// הורדה מיתרת הארנק (למשל בסיום חניה). היתרה יכולה לרדת למינוס, כמו בשרת
 export const deductPointsReducer = (state: UserState, action: PayloadAction<number>) => {
-  state.points = Math.max(0, state.points - action.payload);
+  state.points = state.points - action.payload;
 };
 
 // עדכון מספר הרישוי של הרכב הנוכחי

@@ -1,17 +1,15 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiFetch } from '../../api/api';
+import type { Wallet } from '../../types';
 
-interface MeResponse {
-  points: number;
-}
-
-// מביאה מהשרת את הנקודות העדכניות (לפי הטוקן)
+// מביאה מהשרת את יתרת הארנק העדכנית בשקלים (לפי הטוקן).
+// עובד לכל משתמש: נהג, בעל חניה או מנהל.
+// (השדה ב-Store עדיין נקרא points מהשיטה הישנה, אבל עכשיו הוא שומר שקלים)
 export const refreshPoints = createAsyncThunk<number>('user/refreshPoints', async () => {
   try {
-    const me = await apiFetch<MeResponse>('/Drivers/me');
-    return me.points;
+    const wallet = await apiFetch<Wallet>('/Wallet/me');
+    return wallet.balance;
   } catch {
-    // למשתמש מסוג Owner בלבד ייתכן שעדיין לא נוצר פרופיל Driver
     return 0;
   }
 });

@@ -5,7 +5,8 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setReservation, clearSession } from '../store/session/sessionSlice';
 import { clearSearch } from '../store/search/searchSlice';
 import { refreshPoints } from '../store/user/userThunks';
-import { estimateCost, cashbackBonus } from '../store/session/sessionSelectors';
+import { estimateCost } from '../store/session/sessionSelectors';
+import { formatMoney } from '../utils/money';
 import { parseServerUtc } from '../utils/time';
 import type { ParkingSpot, Reservation } from '../types';
 import InfoCard from './InfoCard';
@@ -162,7 +163,6 @@ function ParkingSessionScreen() {
   if (reservation.status === 'Completed') {
     const endMs = parseServerUtc(reservation.endTime);
     const totalMinutes = Math.max(1, Math.ceil((endMs - startMs) / 60000));
-    const bonus = cashbackBonus(reservation.totalPrice);
 
     return (
       <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -178,8 +178,7 @@ function ParkingSessionScreen() {
             <div><strong>מיקום:</strong> {placeName}</div>
             <div><strong>משעה:</strong> {formatClock(startMs)} <strong>עד:</strong> {formatClock(endMs)}</div>
             <div><strong>משך:</strong> {totalMinutes} דקות</div>
-            <div><strong>עלות:</strong> {reservation.totalPrice} נקודות</div>
-            <div><strong>בונוס 10%:</strong> +{bonus} נקודות</div>
+            <div><strong>שולם מהארנק:</strong> {formatMoney(reservation.totalPrice)}</div>
           </div>
         </InfoCard>
 
@@ -255,7 +254,7 @@ function ParkingSessionScreen() {
 
         <InfoCard title="עלות משוערת">
           <div style={{ fontSize: '32px', fontWeight: 900, fontFamily: 'monospace', color: '#059669', margin: '12px 0' }}>
-            {liveCost !== null ? `${liveCost} נק'` : '—'}
+            {liveCost !== null ? formatMoney(liveCost) : '—'}
           </div>
           <div style={{ fontSize: '12px', color: '#5a6b82' }}>העלות הסופית תחושב בסיום</div>
         </InfoCard>
