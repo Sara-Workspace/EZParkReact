@@ -1,75 +1,59 @@
-# React + TypeScript + Vite
+# EZPark – צד לקוח (React + TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ממשק המשתמש של EZPark, אתר שיתופי להשכרת חניות פרטיות. הלקוח מדבר עם שרת ה-.NET: <https://github.com/Sara-Workspace/EZPark>
 
-Currently, two official plugins are available:
+## טכנולוגיות
+React 19 · TypeScript · Vite · Redux Toolkit · React Router 7 · Leaflet (מפות OpenStreetMap)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## דרישות
+- Node.js 20 ומעלה
+- שרת ה-EZPark רץ (ראו README של השרת)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+## הרצה
+```bash
+npm install
+npm run dev
 ```
+האתר נפתח ב-`http://localhost:5173` (הכתובת שהשרת מאפשר ב-CORS).
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+### משתני סביבה
+אין סודות בצד הלקוח. אפשר לשנות רק את כתובת השרת, בקובץ `.env.local` (מתעלמים ממנו ב-Git):
 ```
+VITE_API_URL=https://localhost:7036/api
+```
+אם לא מוגדר, ברירת המחדל היא `https://localhost:7036/api`. לפריסה, `.env.production` מכיל את כתובת השרת המפורסם (כתובת ציבורית, לא סוד).
+
+### סקריפטים
+| פקודה | מה עושה |
+|---|---|
+| `npm run dev` | שרת פיתוח |
+| `npm run build` | בדיקת טיפוסים ובנייה ל-`dist` |
+| `npm run lint` | בדיקת ESLint |
+
+## מבנה הפרויקט (`src`)
+| תיקייה | תפקיד |
+|---|---|
+| `components/` | המסכים והרכיבים (התחברות, חיפוש + מפה, חניה פעילה, ארנק, ניהול, צ'אט) |
+| `store/` | Redux Toolkit: `user`, `parkings`, `search`, `session`, `chat`. כל slice מפוצל ל-State / Reducers / Thunks / Slice |
+| `hooks/` | Hooks משלנו: `useMyLocation`, `useVoiceInput`, `useChat`, `useWallet`, `useSpotHours`, `useSpotCheck` |
+| `api/` | `apiFetch` (טוקן, שגיאות אחידות, טיפול ב-401), הזרמת צ'אט, Geocoding |
+| `utils/` | ולידציה, פורמט כסף, המרת זמן |
+| `types/` | ממשקי TypeScript לתשובות השרת |
+
+## ניווט
+`Layout` אחד לכל המסכים (תפריט עליון, צ'אט AI), `ProtectedRoute` למשתמש מחובר, `AdminRoute` למנהל, ונתיב 404.
+
+## זרימת הבקשות
+1. קומפוננטה שולחת action (`dispatch`) ← **thunk** קורא ל-`apiFetch` ← השרת.
+2. ה-slice מעדכן את ה-Store לפי `pending / fulfilled / rejected`.
+3. הקומפוננטה קוראת מה-Store עם `useAppSelector`.
+
+קריאות שמשותפות לכמה מסכים (התחברות, הרשמה, שמירת חניה, "חניתי", סיום חניה, דירוג, לוחית רישוי) עוברות דרך thunks. פעולות שקשורות למסך אחד (ארנק, שעות זמינות, בדיקת חניה) עטופות ב-Custom Hooks.
+
+## אבטחה
+- הטוקן נשמר ב-`localStorage` ונשלח ב-`Authorization: Bearer`.
+- הסתרת מסכים (`AdminRoute`) היא לשיפור חוויה בלבד. ההרשאות נאכפות בשרת.
+- אין מפתחות או `node_modules` ב-GitHub (`.gitignore`).
+
+## פריסה
+קובץ `.github/workflows/main.yml` בונה ומפרסם אוטומטית לשרת האירוח (IIS), ופרטי ההתחברות שלו שמורים ב-GitHub Secrets. `public/web.config` מגדיר ניתוב של אפליקציית SPA.
