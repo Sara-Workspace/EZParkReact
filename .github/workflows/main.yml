@@ -1,0 +1,47 @@
+name: Build and Deploy EZPark React
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Deploy to MonsterASP
+        shell: pwsh
+        env:
+          SERVER: ${{ secrets.SERVER_COMPUTER_NAME }}
+          SITE: ${{ secrets.WEBSITE_NAME }}
+          USER: ${{ secrets.SERVER_USERNAME }}
+          PASS: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          $msdeploy = "${env:ProgramFiles(x86)}\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          if (-not (Test-Path $msdeploy)) {
+            $msdeploy = "$env:ProgramFiles\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          }
+          $sourcePath = (Resolve-Path "./dist").Path
+          $computerName = "https://$($env:SERVER):8172/msdeploy.axd?site=$($env:SITE)"
+          $deployArgs = @(
+            "-verb:sync",
+            "-source:contentPath=$sourcePath",
+            "-dest:contentPath=$($env:SITE),computerName=$computerName,userName=$($env:USER),password=$($env:PASS),authtype=Basic",
+            "-allowUntrusted"
+          )
+          & $msdeploy $deployArgs
